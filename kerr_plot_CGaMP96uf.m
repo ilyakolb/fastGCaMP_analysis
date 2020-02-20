@@ -7,7 +7,7 @@
 % close all
 clc
 
-plotHighlights = 0;
+plotHighlights = 1;
 
 % construct/control parameters to plot
 % xToPlot = 'x1_fp';
@@ -15,7 +15,7 @@ plotHighlights = 0;
 % sizeToPlot = 'decay_1_fp';
 % colorToPlot = 'norm_f0';
 xToPlot = 'x1_fp';
-yToPlot = 'rise_1_fp'; %'norm_f0'
+yToPlot = 'decay_1_fp'; %'rise_1_fp'; %'norm_f0'
 sizeToPlot = 'decay_1_fp';
 colorToPlot = 'norm_f0';
 
@@ -25,11 +25,21 @@ if ismac
 	base = fullfile('/Volumes', 'genie');
 end
 
+
+% ALL after week 2 of 6th round
+good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200212_GCaMP96uf.xlsx'));
+
+% 6th round up to 20200211 (week 2)
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200211_GCaMP96uf_raw_GCaMP96uf.xlsx'));
+
+% 6th round up to 20200205 (week 1)
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200205_GCaMP96uf_analyzed_GCaMP96uf.xlsx'));
+
 % All rounds w/ fixed pixel bug
-% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20191211_GCaMP96uf.xlsx'));
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200128_GCaMP96uf.xlsx'));
 
 % 5th round with fixed bug + ilastik
-good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20191209_GCaMP96uf_raw_GCaMP96uf.xlsx'));
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20191209_GCaMP96uf_raw_GCaMP96uf.xlsx'));
 
 % all rounds w/ bug
 % good = readtable(fullfile(base,'\GECIScreenData\Analysis\withBug\data_all_20191122_GCaMP96uf.xlsx'));
@@ -81,7 +91,7 @@ good.Properties.VariableNames(~startsWith(good.Properties.VariableNames, 'Var'))
 % only include if at least X wells
 good = good(good.replicate_number > 1, :);
 
-controlNames = {'10.641', '10.693', '10.921'};
+controlNames = {'10.641', '10.693', '10.921', '500.456', '500.640'};
 plotControls = 1;
 nToSort = 5;
 
@@ -136,7 +146,8 @@ end
 good_sorted = sortrows(good, xToPlot, 'descend'); % pos-going
 head(good_sorted, nToSort)
 % good_sorted = good(good.first_assay_date>2.019e7,:);
-highlights = table2cell(good(contains(good.construct, {'500.333', '500.453', '500.456', '500.640'}),'construct'));
+highlights = table2cell(good(contains(good.construct, {'500.666'}),'construct'));
+% highlights = table2cell(good(startsWith(good.first_assay_date, '2020') ,'construct'));
 
 % hits = table2cell(good_sorted(1:nToSort,1))'
 

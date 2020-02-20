@@ -12,7 +12,7 @@
 
 % 10.641 GCaMP6s   : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 K78H T302L R303P D380Y T381R S383T R392G.10.641
 % 10.693 GCaMP6f   : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302L R303P A317E D380Y T381R S383T R392G.10.693
-% 10.921 GCaMP7f??  : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302L R303P A317L D380Y.10.921
+% 10.921 GCaMP7f  : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302L R303P A317L D380Y.10.921
 % close all
 clc
 
@@ -20,25 +20,28 @@ plotHighlights = 0;
 plotControls = 1;
 nKerrPlots = 3;
 
-xToPlot_series = {'x3_fp', 'x3_fp', 'x3_fp'}; % df/f
-yToPlot_series = {'rise_3_fp', 'decay_3_fp', 'x160_fp'}; % 1/time
-xLabels = {'DF/F (3AP)', 'DF/F (3AP)', 'DF/F (3AP)'};
-yLabels = {'1/rise (3AP)', '1/decay (3AP)', 'DF/F (160AP)'};
+xToPlot_series = {'x1_fp', 'x1_fp', 'x1_fp'}; % df/f
+yToPlot_series = {'rise_1_fp', 'decay_1_fp', 'x160_fp'}; % 1/time
+xLabels = {'DF/F (1AP)', 'DF/F (1AP)', 'DF/F (1AP)'};
+yLabels = {'1/rise (1AP)', '1/decay (1AP)', 'DF/F (160AP)'};
 
 controlNames = {'10.641', '10.921'};
 
 oneOverY = [1 1 0]; % 1 if y axis should be inverse
 
 sizeToPlot = 'norm_f0'; % size: F0
-colorToPlot = 'x3_fp_p'; % inv log df/f0 p-val
+colorToPlot = 'x1_fp_p'; % inv log df/f0 p-val
 
 base = 'Z:/';
 if ismac
     base = fullfile('/Volumes', 'genie');
 end
 
+% ALL after 6th round week 2
+good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200212_GCaMP96uf.xlsx'));
+
 % Yan's all rounds with fixed pixel bug
-good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20191211_GCaMP96uf.xlsx'));
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20191211_GCaMP96uf.xlsx'));
 
 % sort to just 2nd round (500.2-500.303 + controls)
 % good = good([1:3 67:328], :);
@@ -110,7 +113,7 @@ for nPlot = 1:nKerrPlots
     cs = 10+200*size_variable_norm;
     cc = good.(colorToPlot);
     % color for p values screws up for controls b/c there are so many
-%     cc(contains(good.construct, {'TE', '10.921', '10.693', '500.333'})) = 1;
+    cc(contains(good.construct, {'TE', '10.921', '10.693', '500.333'})) = 1;
     cc = -1*log10(cc);
     % save identifying x, y coords for interactive plotting
     % save('plotted_xycoords.mat', 'x','y')
@@ -150,7 +153,7 @@ for nPlot = 1:nKerrPlots
     good_sorted = sortrows(good, xToPlot, 'descend'); % pos-going
     head(good_sorted, 5)
     % good_sorted = good(good.first_assay_date>2.019e7,:);
-    highlights = table2cell(good(contains(good.construct, {'500.456', '500.333'}),'construct'));
+    highlights = table2cell(good(contains(good.construct, {'500.456', '500.666'}),'construct'));
     
     % hits = table2cell(good_sorted(1:nToSort,1))'
     

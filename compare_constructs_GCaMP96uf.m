@@ -30,8 +30,16 @@ clc
 
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
 % hits = {'10.921', '500.106'};
+
+% 6th round hits (dff, kinetics)
+%hits = {'10.921', '500.456', '500.640', '500.686', '500.675', '500.676', '500.688'};
+
+% 6th round hits (other params)
+hits = {'10.921', '500.456', '500.666', '500.696'};
+
+
 % 4th round (best 1AP)
-hits = {'10.921', '500.456'};
+% hits = {'10.921', '500.333', '500.456'};
 
 % 4th round (best other params)
 % hits = {'10.921', '500.333', '500.512', '500.543'};
@@ -43,7 +51,7 @@ hits = {'10.921', '500.456'};
 % hits = {'500.456', '500.640', '538.1', '538.2', '538.3'};
 
 % 5th round (20191125)
-% hits = {'10.921', '500.333', '500.668', '500.659', '500.647'};
+% hits = {'10.921', '500.333', '500.378', '500.668'};
 
 %5th round (20191209, ilastik)
 % hits = {'10.921', '500.333', '500.668', '500.663', '500.649'};
@@ -63,8 +71,8 @@ hits = {'10.921', '500.456'};
 
 control= '10.641';
 
-alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
 bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
@@ -72,7 +80,7 @@ numSampleWells =3;           % number of sample wells to plot
 launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
 apNumIdx = 1;                % AP index for  (1, 3, 10, 160)
 % plot colors
-col=['b','r','g','m','c','y', 'b','r','g','m','c','y'];
+col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
 APstimNames = {'1AP', '3AP', '10AP', '160AP'};
 % APstimNames = {'1AP', '2AP', '3AP', '5AP', '10AP', '20AP', '40AP', '160AP'};
 
@@ -87,13 +95,26 @@ end
 
 if isempty(whos('mutant'))
     % load latest MAT
+
+    % ALL after week 2 of 6th round
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200212.mat'), 'mutant')
+
+
+    % 6th round 20200211 (week 2)
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200211_GCaMP96uf_raw.mat'), 'mutant')
+    
+    % 6th round 20200205 (week 1)
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200205_GCaMP96uf_analyzed.mat'), 'mutant')
+    
+    % all up to 5th round w/ ilastik
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200128.mat'), 'mutant')
     
     % 5th round w/ ilastik
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20191209_GCaMP96uf_raw.mat'), 'mutant')
     
     
     % ufGCaMPs round 1-4 with fixed pixels, Hod's cellfinder (not ilastik)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20191211_OLDCELLFINDER.mat'), 'mutant')
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20191211_OLDCELLFINDER.mat'), 'mutant')
     
     % Abhi's sensor from 20191112 (8 AP stims) BUG CORRECTED
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20191112_GCaMP96uf_analyzed.mat'), 'mutant')
@@ -141,6 +162,9 @@ if isempty(whos('mutant'))
 
 end
 
+% 2/19/20 FOUND BAD JGCAMP7F CONTROL, EXCLUDE ALL THOSE
+exclude_bad_dates
+    
 tableVarNames = {'construct', 'nWells', 'df_f_AP_mean', 'df_f_AP_std', 'rise_half_AP_ms_mean', 'rise_half_AP_ms_std', 'rise_full_AP_ms_mean', 'rise_full_AP_ms_std',...
     'f0_mean', 'f0_std', 'decay_half_med_mean', 'decay_half_med_std', 'SNR', 'SNR_std'};
 comparisonTable = table('Size', [length(hits)+1 length(tableVarNames)], 'VariableTypes', {'string', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double'}, ...
