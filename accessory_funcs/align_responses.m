@@ -15,7 +15,7 @@ warning('FIX align_responses!')
 trueStimIndex = 200; % make the plots centered on 1-second mark
 imagingDataDir = 'Z:\GECIScreenData\GECI_Imaging_Data';
 % APnumString = '001FP';
-allPlateDir = dir(fullfile(imagingDataDir, '*_GCaMP96uf_analyzed*\P*')); % all plate directories
+allPlateDir = dir(fullfile(imagingDataDir, '*_GCaMP96uf_*\P*')); % all plate directories
 allPlateDir = allPlateDir([allPlateDir.isdir]);
 allPlateNames = {allPlateDir.name}';
 

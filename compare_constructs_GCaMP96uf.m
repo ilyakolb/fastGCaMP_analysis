@@ -31,11 +31,14 @@ clc
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
 % hits = {'10.921', '500.106'};
 
+hits = {'10.921', '500.456', '10.1473', '500.688', '538.1'};
+% hits = {'10.921', '500.333', '500.688', '500.456'};
+
 % 6th round hits (dff, kinetics)
 %hits = {'10.921', '500.456', '500.640', '500.686', '500.675', '500.676', '500.688'};
 
 % 6th round hits (other params)
-hits = {'10.921', '500.456', '500.666', '500.696'};
+% hits = {'10.921', '500.456', '500.666', '500.543', '500.712'};
 
 
 % 4th round (best 1AP)
@@ -71,8 +74,8 @@ hits = {'10.921', '500.456', '500.666', '500.696'};
 
 control= '10.641';
 
-alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
 bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
@@ -95,9 +98,18 @@ end
 
 if isempty(whos('mutant'))
     % load latest MAT
+    
+    % combo (loaner camera, EM gain 25)
+    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw.mat'), 'mutant')
+    
+    % 6th round ONLY with fixed jgcamp7f control
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
 
-    % ALL after week 2 of 6th round
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200212.mat'), 'mutant')
+    % ALL after week 2 of 6th round (updated ilastik parameters)
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200308.mat'), 'mutant')
+
+    % ALL after week 2 of 6th round (old ilastik parameters)
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200212.mat'), 'mutant')
 
 
     % 6th round 20200211 (week 2)
@@ -163,7 +175,7 @@ if isempty(whos('mutant'))
 end
 
 % 2/19/20 FOUND BAD JGCAMP7F CONTROL, EXCLUDE ALL THOSE
-exclude_bad_dates
+% exclude_bad_dates
     
 tableVarNames = {'construct', 'nWells', 'df_f_AP_mean', 'df_f_AP_std', 'rise_half_AP_ms_mean', 'rise_half_AP_ms_std', 'rise_full_AP_ms_mean', 'rise_full_AP_ms_std',...
     'f0_mean', 'f0_std', 'decay_half_med_mean', 'decay_half_med_std', 'SNR', 'SNR_std'};
@@ -274,6 +286,5 @@ disp([num2str(length(mutant)) ' unique constructs'])
 % disp([num2str(length(unique(horzcat(mutant.plate)))) ' plates'])
 
 
-
-% normPlots
+normPlots
 

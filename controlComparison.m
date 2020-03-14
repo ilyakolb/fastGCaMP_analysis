@@ -1,6 +1,6 @@
 base = 'Z:/';
 if isempty(whos('mutant'))
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200212.mat'), 'mutant')
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200308.mat'), 'mutant')
 
 end
 
@@ -9,9 +9,9 @@ oldDateToken = {'20190826', '20190819', '20190812', '20190813'};
 APidx = 1; % 1:1AP, 2: 3AP, 3: 10AP, 4: 160AP
 
 figure
-currentControl = mutant(strcmp({mutant.construct}, '10.921'));
-latest_dff_currentControl = currentControl.rise_half_med(:,startsWith(currentControl.date, newDateToken));
-early_dff_currentControl = currentControl.rise_half_med(:,startsWith(currentControl.date, oldDateToken));
+currentControl = mutant(strcmp({mutant.construct}, '10.641'));
+latest_dff_currentControl = currentControl.rise_half_med(:,startsWith(currentControl.date, '2019'));
+early_dff_currentControl = currentControl.rise_half_med(:,startsWith(currentControl.date, '2018'));
 
 latest_nCells_currentControl = currentControl.nSegment(startsWith(currentControl.date, newDateToken));
 early_nCells_currentControl = currentControl.nSegment(startsWith(currentControl.date, oldDateToken));

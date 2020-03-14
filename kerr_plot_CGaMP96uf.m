@@ -15,7 +15,7 @@ plotHighlights = 1;
 % sizeToPlot = 'decay_1_fp';
 % colorToPlot = 'norm_f0';
 xToPlot = 'x1_fp';
-yToPlot = 'decay_1_fp'; %'rise_1_fp'; %'norm_f0'
+yToPlot = 'rise_1_fp'; %'rise_1_fp'; %'norm_f0'
 sizeToPlot = 'decay_1_fp';
 colorToPlot = 'norm_f0';
 
@@ -26,8 +26,15 @@ if ismac
 end
 
 
-% ALL after week 2 of 6th round
-good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200212_GCaMP96uf.xlsx'));
+
+% 6th round with fixed jgcamp7f control
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200303_GCaMP96uf_analyzed_GCaMP96uf.xlsx'));
+
+% ALL after week 2 of 6th round (updated ilastik params)
+good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200308_GCaMP96uf.xlsx'));
+
+% ALL after week 2 of 6th round (old ilastik params)
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200212_GCaMP96uf.xlsx'));
 
 % 6th round up to 20200211 (week 2)
 % good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200211_GCaMP96uf_raw_GCaMP96uf.xlsx'));
@@ -91,7 +98,7 @@ good.Properties.VariableNames(~startsWith(good.Properties.VariableNames, 'Var'))
 % only include if at least X wells
 good = good(good.replicate_number > 1, :);
 
-controlNames = {'10.641', '10.693', '10.921', '500.456', '500.640'};
+controlNames = {'10.641', '10.693', '500.333', '10.921', '500.456'};
 plotControls = 1;
 nToSort = 5;
 
