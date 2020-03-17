@@ -74,8 +74,8 @@ hits = {'10.921', '500.456', '10.1473', '500.688', '538.1'};
 
 control= '10.641';
 
-alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
 bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
@@ -99,7 +99,7 @@ end
 if isempty(whos('mutant'))
     % load latest MAT
     
-    % combo (loaner camera, EM gain 25)
+    % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
     load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw.mat'), 'mutant')
     
     % 6th round ONLY with fixed jgcamp7f control

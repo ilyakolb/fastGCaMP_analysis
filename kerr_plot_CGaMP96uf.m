@@ -28,10 +28,10 @@ end
 
 
 % 6th round with fixed jgcamp7f control
-% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200303_GCaMP96uf_analyzed_GCaMP96uf.xlsx'));
+good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200310_GCaMP96uf_raw_GCaMP96uf.xlsx'));
 
 % ALL after week 2 of 6th round (updated ilastik params)
-good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200308_GCaMP96uf.xlsx'));
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200308_GCaMP96uf.xlsx'));
 
 % ALL after week 2 of 6th round (old ilastik params)
 % good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200212_GCaMP96uf.xlsx'));
