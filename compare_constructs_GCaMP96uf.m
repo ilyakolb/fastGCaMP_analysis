@@ -31,7 +31,8 @@ clc
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
 % hits = {'10.921', '500.106'};
 
-hits = {'10.921', '500.456', '10.1473', '500.688', '538.1'};
+% best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
+hits = {'10.921', '500.456', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 % hits = {'10.921', '500.333', '500.688', '500.456'};
 
 % 6th round hits (dff, kinetics)
@@ -74,8 +75,8 @@ hits = {'10.921', '500.456', '10.1473', '500.688', '538.1'};
 
 control= '10.641';
 
-alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
 bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
