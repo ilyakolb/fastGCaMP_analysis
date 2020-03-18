@@ -82,7 +82,7 @@ Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =3;           % number of sample wells to plot
 launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
-apNumIdx = 1;                % AP index for  (1, 3, 10, 160)
+apNumIdx = 1;                % AP index for  (1, 3, 10, 160) to 
 % plot colors
 col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
 APstimNames = {'1AP', '3AP', '10AP', '160AP'};
