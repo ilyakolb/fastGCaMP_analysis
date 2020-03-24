@@ -6,17 +6,19 @@ clc
 base = 'Z:/';
 
 control = '10.641';
-% hits = {'10.921', '500.456', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
-hits = {'10.921', '500.456', '500.688'};
+hits = {'10.921', '500.456', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+% hits = {'10.921', '500.456', '500.688'};
 if isempty(whos('good'))
-    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200308_GCaMP96uf.xlsx'));
+    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200323_GCaMP96uf.xlsx'));
 end
 
 switch width(good)
     case 52
-        load varNames_4AP
+        load varNames_4AP % old xlsx files without TimeToPeak variable
+    case 62
+        load varNames_4AP_withTimeToPeak % new xlsx files with TimeToPeak variable
     case 84
-        load varNames_8AP
+        load varNames_8AP % 8AP data for mng-GECO analysis only
     otherwise
         error('Wrong number of columns')
 end
@@ -30,19 +32,23 @@ good_filt = good(~contains(good.construct, '410.'), :);
 good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
 good_filt = good_filt(good_filt.x1_fp > 1, :); % > GCaMP6s response
 
+
 % filter good table
 rankVarName = 'rise_1_fp';
 [rankedTable, rankedIdx] = sortrows(good_filt, rankVarName, 'descend');
 nConstructs = size(rankedTable,1);
-varNamesToPlot = { 'x1_fp', 'decay_1_fp', 'norm_f0'};
+varNamesToPlot = { 'x1_fp', 'decay_1_fp', 'norm_f0', 'timetopeak_1_fp'};
 nOtherVars = length(varNamesToPlot);
 figure('Position', [352          97        1242         875])
 subplot(nOtherVars+1, 1, 1)
 bar(table2array(rankedTable(:, rankVarName)), 1);
 hold on, plot([0 nConstructs], [1 1], 'r-', 'linewidth' ,1)
 
-% plot markers for hits here
+% plot black marker for control
+scatter(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), [], [0 0 0]);
+text(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), control);
 
+% plot markers for hits
 for i = 1:length(hits)
     currentHit = hits{i};
     currentHitIdx = contains(rankedTable.construct, hits{i});
@@ -62,6 +68,10 @@ for i = 1:nOtherVars
     
     hold on, plot([0 nConstructs], [1 1], 'r-', 'linewidth' ,1)
     
+    % plot black marker for control
+    scatter(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), [], [0 0 0]);
+    text(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), control);
+
     % plot markers for control and relevant hits here
     for j = 1:length(hits)
         currentHit = hits{j};

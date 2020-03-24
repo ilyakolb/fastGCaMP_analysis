@@ -2,6 +2,7 @@
 close all
 clc
 
+saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\all\';
 % nAP vs parameter plots (like jGCaMP7 paper)
 nAPs = [1 3 10 160];
 relevantAPs = [1 2 3 4];
@@ -9,7 +10,8 @@ relevantAPs = [1 2 3 4];
 % filter only mutants that are in 'hits'
 mutant_hits = mutant(contains({mutant.construct}, [control hits]));
 % addendum: string to add on to construct names for clarity
-addendum = {' GCaMP6s', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', '456', '688', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
+addendum = {' GCaMP6s', '', '', '', '', '', '', '', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
+% addendum = {' GCaMP6s', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', '', '', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 
 
 control_dff_mean = nanmean(controlMutant.df_fpeak_med,2);
@@ -122,26 +124,26 @@ sdf(halfrise_fig, 'default')
 sdf(halfdecay_fig, 'default')
 
 % save figs and pdfs
-saveas(dff_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_dff.fig')
-saveas(SNR_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_SNR.fig')
-saveas(halfrise_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_halfrise.fig')
-saveas(halfdecay_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_halfdecay.fig')
+saveas(dff_fig, fullfile(saveFolder, 'dff.fig'));
+saveas(SNR_fig, fullfile(saveFolder, 'SNR.fig'));
+saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.fig'));
+saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.fig'));
 
-saveas(dff_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_dff.pdf')
-saveas(SNR_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_SNR.pdf')
-saveas(halfrise_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_halfrise.pdf')
-saveas(halfdecay_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_halfdecay.pdf')
+saveas(dff_fig, fullfile(saveFolder, 'dff.pdf'));
+saveas(SNR_fig, fullfile(saveFolder, 'SNR.pdf'));
+saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.pdf'));
+saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.pdf'));
 
 % save DFF inset figure
 figure(dff_fig)
 xlim([0.870   3.709])
 ylim([-0.28   3.24])
-saveas(dff_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_dff_inset.fig')
-saveas(dff_fig, 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_dff_inset.pdf')
+saveas(dff_fig, fullfile(saveFolder, 'dff_inset.fig'))
+saveas(dff_fig, fullfile(saveFolder, 'dff_inset.pdf'))
 
 
 % f0 values to import into prism
-f0_ID = fopen('D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps_f0.txt','w');
+f0_ID = fopen(fullfile(saveFolder, 'f0.txt'),'w');
 for i = 1:length(plotLegend)
     fprintf(f0_ID, plotLegend{i});
     fprintf(f0_ID, '\n');

@@ -9,7 +9,7 @@ function [cMap] = getColorMap(nLines)
 
 % assume max distribution over colors
 
-vec = .1:1/nLines:1;
+vec = 1/nLines*[0:nLines-1]; 
 
 
 cMap = [vec(randperm(nLines)); vec(randperm(nLines)); vec(randperm(nLines))]';

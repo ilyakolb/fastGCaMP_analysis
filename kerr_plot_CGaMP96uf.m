@@ -26,12 +26,14 @@ if ismac
 end
 
 
+% testing
+good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200310_GCaMP96uf_analyzed_GCaMP96uf.xlsx'));
 
 % 6th round with fixed jgcamp7f control
 % good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200310_GCaMP96uf_raw_GCaMP96uf.xlsx'));
 
 % ALL after week 2 of 6th round (updated ilastik params)
-good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200308_GCaMP96uf.xlsx'));
+% good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200308_GCaMP96uf.xlsx'));
 
 % ALL after week 2 of 6th round (old ilastik params)
 % good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200212_GCaMP96uf.xlsx'));
@@ -83,12 +85,14 @@ good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200308_GCaMP
 % good = readtable(fullfile(base,'GENIE_Pipeline/Analysis/Results/data_week_20190904_GCaMP96uf_analyzed_GCaMP96uf.xlsx'));
 
 
-% standardize column names when loading xlsx or txt files
+% standardize column names when loading xlsx files
 switch width(good)
     case 52
-        load varNames_4AP
+        load varNames_4AP % old xlsx files without TimeToPeak variable
+    case 62
+        load varNames_4AP_withTimeToPeak % new xlsx files with TimeToPeak variable
     case 84
-        load varNames_8AP
+        load varNames_8AP % 8AP data for mng-GECO analysis only
     otherwise
         error('Wrong number of columns')
 end

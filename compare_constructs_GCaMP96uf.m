@@ -28,13 +28,13 @@ addpath('accessory_funcs\')
 clearvars -except mutant
 clc
 
-rng('shuffle'); % for reproducibility
+rng('default'); % for reproducibility
 
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
 % hits = {'10.921', '500.106'};
 
-% best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-hits = {'10.921', '500.456', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+% all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
+hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 % hits = {'10.921', '500.333', '500.688', '500.456'};
 
 % 6th round hits (dff, kinetics)
@@ -86,7 +86,7 @@ numSampleWells =3;           % number of sample wells to plot
 launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
 apNumIdx = 1;                % AP index for  (1, 3, 10, 160) to 
 % plot colors
-col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
+% col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
 APstimNames = {'1AP', '3AP', '10AP', '160AP'};
 % APstimNames = {'1AP', '2AP', '3AP', '5AP', '10AP', '20AP', '40AP', '160AP'};
 
@@ -102,8 +102,11 @@ end
 if isempty(whos('mutant'))
     % load latest MAT
     
+    % ALL including best performers + xcamps + 7
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200323.mat'), 'mutant')
+    
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw.mat'), 'mutant')
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw.mat'), 'mutant')
     
     % 6th round ONLY with fixed jgcamp7f control
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
