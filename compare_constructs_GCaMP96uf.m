@@ -28,6 +28,8 @@ addpath('accessory_funcs\')
 clearvars -except mutant
 clc
 
+rng('shuffle'); % for reproducibility
+
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
 % hits = {'10.921', '500.106'};
 
@@ -75,9 +77,9 @@ hits = {'10.921', '500.456', '500.688', '10.1473', '10.1513', '10.1561', '538.1'
 
 control= '10.641';
 
-alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
+alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+bleachCorrect = 1;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =3;           % number of sample wells to plot
@@ -251,21 +253,21 @@ if bleachCorrect
         hits_med_med_dff(:,1,i) = bleachCorr(time, hits_med_med_dff(:,1,i));
     end
 end
-figure('position', [2165         616        1238         249])
+f = figure('name', 'comparison', 'position', [2165         616        1238         249]);
+cMap = getColorMap(length(hits));
 
 for n=1:nStims
     subplot(1,nStims,n)
-    shadedErrorBar(time,control_med_med_dff(:,n),control_med_med_dff_sterr(:,n), 'lineprops','k-','transparent',1); % IK mod
-    % shadedErrorBar(time,control_med_med_dff(:,1),control_med_med_dff_std(:,1), 'lineprops','k-','transparent',1); % IK mod
+    shadedErrorBar(time,control_med_med_dff(:,n),control_med_med_dff_sterr(:,n), 'lineprops', 'k-', 'transparent',1); % IK mod
     
     hold on
     for i=1:length(hits)
-        shadedErrorBar(time,hits_med_med_dff(:,n,i),hits_med_med_dff_std(:,n,i),'lineprops', [col(i) '-'],'transparent',1);
+        shadedErrorBar(time,hits_med_med_dff(:,n,i),hits_med_med_dff_std(:,n,i),'lineprops', {'color', cMap(i,:)}, 'transparent',1);
     end
-    % xlim([0.5 2.5])
-    % ylim([-0.05 0.75])
+
     set(gca,'FontSize',10)
     title(APstimNames{n})
+
 end
 
 
@@ -273,10 +275,18 @@ legendWithControl = [control hits];
 legend(legendWithControl)
 set(gcf,'Visible','on')
 
-% clear hits_med_med_dff hits_med_med_dff_std
+% set x and y limits
+subplot(1,4,1); xlim([.23 4.1]); ylim([-0.1471    1.3917])
+subplot(1,4,2); xlim([.23 4.1]); ylim([-0.3724    2.7636])
+subplot(1,4,3); xlim([.23 4.1])
+subplot(1,4,4); xlim([.23 6])
 
-% show table
-comparisonTable
+% Table for Prism
+% Format is: {Name, mean, st.err, num samples} for each parameter
+% Parameters: DF_F, Half Rise Time, Full Rise Time, Half Decay Time, F0
+% open this in Variable explorer, copy, and paste to Prism
+% Prism options: New Table (column), Enter values calculated elsewhere,
+% Mean, 
 comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f_AP_mean, comparisonTable.df_f_AP_std, comparisonTable.nWells, ...
     comparisonTable.rise_half_AP_ms_mean, comparisonTable.rise_half_AP_ms_std, comparisonTable.nWells, comparisonTable.rise_full_AP_ms_mean, comparisonTable.rise_full_AP_ms_std, comparisonTable.nWells, ...
     comparisonTable.decay_half_med_mean, comparisonTable.decay_half_med_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
@@ -287,5 +297,5 @@ disp([num2str(length(mutant)) ' unique constructs'])
 % disp([num2str(length(unique(horzcat(mutant.plate)))) ' plates'])
 
 
-normPlots
+% normPlots
 
