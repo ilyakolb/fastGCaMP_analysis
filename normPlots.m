@@ -2,7 +2,7 @@
 clc
 
 % set to 1 to save figures
-saveOn = 0;
+saveOn = 1;
 
 saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\all\';
 % nAP vs parameter plots (like jGCaMP7 paper)

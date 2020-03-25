@@ -3,6 +3,7 @@ clearvars -except good
 clc
 % close all
 
+pareto = 0; % set to 1 to do pareto optimization
 base = 'Z:/';
 
 control = '10.641';
@@ -32,10 +33,23 @@ good_filt = good(~contains(good.construct, '410.'), :);
 good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
 good_filt = good_filt(good_filt.x1_fp > 1, :); % > GCaMP6s response
 
-
-% filter good table
-rankVarName = 'rise_1_fp';
-[rankedTable, rankedIdx] = sortrows(good_filt, rankVarName, 'descend');
+%% trying pareto optimization
+% weights
+if pareto
+    wDFF = 1;
+    wRise = -5;
+    wTTP = -5;
+    wDecay = -2;
+    pareto = wDFF * good_filt.x1_fp + wRise * log(good_filt.rise_1_fp) + wTTP * log(good_filt.timetopeak_1_fp) + wDecay * log(good_filt.decay_1_fp);
+    good_filt.pareto = pareto;
+    %%
+    % filter good table
+    rankVarName = 'pareto';
+    [rankedTable, rankedIdx] = sortrows(good_filt, rankVarName, 'ascend');
+else
+    rankVarName = 'rise_1_fp';
+    [rankedTable, rankedIdx] = sortrows(good_filt, rankVarName, 'descend');
+end 
 nConstructs = size(rankedTable,1);
 varNamesToPlot = { 'x1_fp', 'decay_1_fp', 'norm_f0', 'timetopeak_1_fp'};
 nOtherVars = length(varNamesToPlot);
@@ -69,8 +83,8 @@ for i = 1:nOtherVars
     hold on, plot([0 nConstructs], [1 1], 'r-', 'linewidth' ,1)
     
     % plot black marker for control
-    scatter(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), [], [0 0 0]);
-    text(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), control);
+    scatter(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(currentVarName), [], [0 0 0]);
+    text(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(currentVarName), control);
 
     % plot markers for control and relevant hits here
     for j = 1:length(hits)

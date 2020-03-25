@@ -31,10 +31,10 @@ clc
 rng('default'); % for reproducibility
 
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
-hits = {'10.921', '500.456', '500.657', '500.470', '500.649'};
+% hits = {'10.921', '500.456', '500.657', '500.470', '500.649'};
 
 % all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-% hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 % hits = {'500.456','500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 
@@ -79,7 +79,7 @@ hits = {'10.921', '500.456', '500.657', '500.470', '500.649'};
 control= '10.641';
 
 alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
 bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
@@ -104,7 +104,7 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200324.mat'), 'mutant')
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant')
     
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw.mat'), 'mutant')
