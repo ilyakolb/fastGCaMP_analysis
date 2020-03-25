@@ -77,9 +77,9 @@ hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.4
 
 control= '10.641';
 
-alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 1;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
+alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =3;           % number of sample wells to plot
@@ -103,7 +103,7 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200323.mat'), 'mutant')
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200324.mat'), 'mutant')
     
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw.mat'), 'mutant')
@@ -300,5 +300,5 @@ disp([num2str(length(mutant)) ' unique constructs'])
 % disp([num2str(length(unique(horzcat(mutant.plate)))) ' plates'])
 
 
-% normPlots
+normPlots
 

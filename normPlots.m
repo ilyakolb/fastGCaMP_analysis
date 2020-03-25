@@ -1,5 +1,4 @@
 %% Run this after running compare_constructs_GCaMP96uf
-close all
 clc
 
 saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\all\';
@@ -8,7 +7,10 @@ nAPs = [1 3 10 160];
 relevantAPs = [1 2 3 4];
 
 % filter only mutants that are in 'hits'
-mutant_hits = mutant(contains({mutant.construct}, [control hits]));
+mutant_hits = controlMutant;
+for i = 1:length(hits)
+    mutant_hits = [mutant_hits mutant(contains({mutant.construct}, hits{i}))];
+end
 % addendum: string to add on to construct names for clarity
 addendum = {' GCaMP6s', '', '', '', '', '', '', '', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 % addendum = {' GCaMP6s', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', '', '', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
@@ -21,17 +23,20 @@ control_SNR_mean = nanmean(controlMutant.SNR,2);
 control_SNR_sterr = normalized_error(controlMutant.SNR, controlMutant.SNR, 2);
 control_halfrise_mean = nanmean(controlMutant.rise_half_med,2);
 control_halfrise_sterr = std(controlMutant.rise_half_med,0,2)/sqrt(size(controlMutant.rise_half_med,2));
+control_timetopeak_mean = nanmean(controlMutant.timetopeak_med,2);
+control_timetopeak_sterr = std(controlMutant.timetopeak_med,0,2)/sqrt(size(controlMutant.timetopeak_med,2));
 control_halfdecay_mean = nanmean(controlMutant.decay_half_med,2);
 control_halfdecay_sterr = std(controlMutant.decay_half_med,0,2)/sqrt(size(controlMutant.decay_half_med,2));
 
 dff_fig = figure; errorbar(nAPs, control_dff_mean, control_dff_sterr, 'k-', 'linewidth', 2);
 SNR_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_SNR_sterr, 'k-', 'linewidth', 2);
 halfrise_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_halfrise_sterr, 'k-', 'linewidth', 2);
+timetopeak_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_timetopeak_sterr, 'k-', 'linewidth', 2);
 halfdecay_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_halfdecay_sterr, 'k-', 'linewidth', 2);
 
 plotLegend = {mutant_hits.construct};
-plotLegend = [plotLegend' addendum'];
-plotLegend = join(plotLegend);
+% plotLegend = [plotLegend' addendum'];
+% plotLegend = join(plotLegend);
 
 control_f0 = controlMutant.f0';
 
@@ -42,6 +47,8 @@ disp('GCaMP6s F0')
 join([string(mean(control_f0))  string(std(control_f0) / length(control_f0))], '±')
 disp('GCaMP6s half-rise')
 join([string(control_halfrise_mean(relevantAPs))  string(control_halfrise_sterr(relevantAPs))], '±')
+disp('GCaMP6s time to peak')
+join([string(control_timetopeak_mean(relevantAPs))  string(control_timetopeak_sterr(relevantAPs))], '±')
 disp('GCaMP6s half-decay')
 join([string(control_halfdecay_mean(relevantAPs))  string(control_halfdecay_sterr(relevantAPs))], '±')
 disp('GCaMP6s SNR')
@@ -71,8 +78,14 @@ for i = 2:length(mutant_hits)
     mutant_halfrise_sterr_norm = normalized_error(plotMutant.rise_half_med, controlMutant.rise_half_med, 2);
     figure(halfrise_fig); hold on, errorbar(nAPs, mutant_halfrise_mean_norm, mutant_halfrise_sterr_norm,'color', cMap(i-1,:), 'linewidth', 2);
     
+    mutant_timetopeak_mean = nanmean(plotMutant.timetopeak_med,2);
+    mutant_timetopeak_sterr = nanstd(plotMutant.timetopeak_med,0,2) / size(plotMutant.timetopeak_med,2);
+    mutant_timetopeak_mean_norm = mutant_timetopeak_mean ./ control_timetopeak_mean;
+    mutant_timetopeak_sterr_norm = normalized_error(plotMutant.timetopeak_med, controlMutant.timetopeak_med, 2);
+    figure(timetopeak_fig); hold on, errorbar(nAPs, mutant_timetopeak_mean_norm, mutant_timetopeak_sterr_norm,'color', cMap(i-1,:), 'linewidth', 2);
+    
     mutant_halfdecay_mean = nanmean(plotMutant.decay_half_med,2);
-    mutant_halfdecay_sterr = nanstd(plotMutant.decay_half_med,0,2) / size(plotMutant.rise_half_med,2);
+    mutant_halfdecay_sterr = nanstd(plotMutant.decay_half_med,0,2) / size(plotMutant.decay_half_med,2);
     mutant_halfdecay_mean_norm = mutant_halfdecay_mean ./ control_halfdecay_mean;
     mutant_halfdecay_sterr_norm = normalized_error(plotMutant.decay_half_med, controlMutant.decay_half_med, 2);
     figure(halfdecay_fig); hold on, errorbar(nAPs, mutant_halfdecay_mean_norm, mutant_halfdecay_sterr_norm,'color', cMap(i-1,:), 'linewidth', 2);
@@ -88,6 +101,8 @@ for i = 2:length(mutant_hits)
     join([string(mutant_f0_mean)  string(mutant_f0_sterr)], '±')
     disp([plotMutant.construct ' half-rise'])
     join([string(mutant_halfrise_mean(relevantAPs))  string(mutant_halfrise_sterr(relevantAPs))], '±')
+    disp([plotMutant.construct ' time to peak'])
+    join([string(mutant_timetopeak_mean(relevantAPs))  string(mutant_timetopeak_sterr(relevantAPs))], '±')
     disp([plotMutant.construct ' half-decay'])
     join([string(mutant_halfdecay_mean(relevantAPs))  string(mutant_halfdecay_sterr(relevantAPs))], '±')
     disp([plotMutant.construct ' SNR'])
@@ -111,6 +126,11 @@ xticks(nAPs); xlim([.8 190])
 ylabel('half-rise')
 % legend(plotLegend)
 set(gca, 'XScale', 'log'); box off
+figure(timetopeak_fig); 
+xticks(nAPs); xlim([.8 190])
+ylabel('time to peak')
+% legend(plotLegend)
+set(gca, 'XScale', 'log'); box off
 figure(halfdecay_fig); 
 xticks(nAPs); xlim([.8 190])
 ylabel('half-decay')
@@ -127,11 +147,13 @@ sdf(halfdecay_fig, 'default')
 saveas(dff_fig, fullfile(saveFolder, 'dff.fig'));
 saveas(SNR_fig, fullfile(saveFolder, 'SNR.fig'));
 saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.fig'));
+saveas(timetopeak_fig, fullfile(saveFolder, 'timetopeak.fig'));
 saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.fig'));
 
 saveas(dff_fig, fullfile(saveFolder, 'dff.pdf'));
 saveas(SNR_fig, fullfile(saveFolder, 'SNR.pdf'));
 saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.pdf'));
+saveas(timetopeak_fig, fullfile(saveFolder, 'timetopeak.pdf'));
 saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.pdf'));
 
 % save DFF inset figure
