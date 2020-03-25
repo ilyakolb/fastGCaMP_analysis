@@ -15,7 +15,7 @@ plotHighlights = 1;
 % sizeToPlot = 'decay_1_fp';
 % colorToPlot = 'norm_f0';
 xToPlot = 'x1_fp';
-yToPlot = 'rise_1_fp'; %'rise_1_fp'; %'norm_f0'
+yToPlot = 'decay_1_fp'; %'rise_1_fp'; %'norm_f0'; 'timetopeak_1_fp'
 sizeToPlot = 'decay_1_fp';
 colorToPlot = 'norm_f0';
 
@@ -27,7 +27,7 @@ end
 
 
 % testing
-good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200310_GCaMP96uf_analyzed_GCaMP96uf.xlsx'));
+good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200324_GCaMP96uf.xlsx'));
 
 % 6th round with fixed jgcamp7f control
 % good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_week_20200310_GCaMP96uf_raw_GCaMP96uf.xlsx'));
@@ -98,7 +98,7 @@ switch width(good)
 end
 
 good.Properties.VariableNames(~startsWith(good.Properties.VariableNames, 'Var'))= varNames;
-
+good.Properties.RowNames = good.construct;
 % only include if at least X wells
 good = good(good.replicate_number > 1, :);
 
@@ -175,3 +175,4 @@ if plotHighlights
     y_highlight = highlight_good.(yToPlot);
     scatter(x_highlight, y_highlight, 20, [1 0 0])
 end
+

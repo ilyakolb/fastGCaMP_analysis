@@ -1,6 +1,9 @@
 %% Run this after running compare_constructs_GCaMP96uf
 clc
 
+% set to 1 to save figures
+saveOn = 0;
+
 saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\all\';
 % nAP vs parameter plots (like jGCaMP7 paper)
 nAPs = [1 3 10 160];
@@ -144,35 +147,37 @@ sdf(halfrise_fig, 'default')
 sdf(halfdecay_fig, 'default')
 
 % save figs and pdfs
-saveas(dff_fig, fullfile(saveFolder, 'dff.fig'));
-saveas(SNR_fig, fullfile(saveFolder, 'SNR.fig'));
-saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.fig'));
-saveas(timetopeak_fig, fullfile(saveFolder, 'timetopeak.fig'));
-saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.fig'));
-
-saveas(dff_fig, fullfile(saveFolder, 'dff.pdf'));
-saveas(SNR_fig, fullfile(saveFolder, 'SNR.pdf'));
-saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.pdf'));
-saveas(timetopeak_fig, fullfile(saveFolder, 'timetopeak.pdf'));
-saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.pdf'));
-
-% save DFF inset figure
-figure(dff_fig)
-xlim([0.870   3.709])
-ylim([-0.28   3.24])
-saveas(dff_fig, fullfile(saveFolder, 'dff_inset.fig'))
-saveas(dff_fig, fullfile(saveFolder, 'dff_inset.pdf'))
-
-
-% f0 values to import into prism
-f0_ID = fopen(fullfile(saveFolder, 'f0.txt'),'w');
-for i = 1:length(plotLegend)
-    fprintf(f0_ID, plotLegend{i});
-    fprintf(f0_ID, '\n');
-    fprintf(f0_ID, '%f\n', mutant_hits(i).f0');
-    fprintf(f0_ID, '\n');
+if saveOn
+    saveas(dff_fig, fullfile(saveFolder, 'dff.fig'));
+    saveas(SNR_fig, fullfile(saveFolder, 'SNR.fig'));
+    saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.fig'));
+    saveas(timetopeak_fig, fullfile(saveFolder, 'timetopeak.fig'));
+    saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.fig'));
+    
+    saveas(dff_fig, fullfile(saveFolder, 'dff.pdf'));
+    saveas(SNR_fig, fullfile(saveFolder, 'SNR.pdf'));
+    saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.pdf'));
+    saveas(timetopeak_fig, fullfile(saveFolder, 'timetopeak.pdf'));
+    saveas(halfdecay_fig, fullfile(saveFolder, 'halfdecay.pdf'));
+    
+    % save DFF inset figure
+    figure(dff_fig)
+    xlim([0.870   3.709])
+    ylim([-0.28   3.24])
+    saveas(dff_fig, fullfile(saveFolder, 'dff_inset.fig'))
+    saveas(dff_fig, fullfile(saveFolder, 'dff_inset.pdf'))
+    
+    
+    % f0 values to import into prism
+    f0_ID = fopen(fullfile(saveFolder, 'f0.txt'),'w');
+    for i = 1:length(plotLegend)
+        fprintf(f0_ID, plotLegend{i});
+        fprintf(f0_ID, '\n');
+        fprintf(f0_ID, '%f\n', mutant_hits(i).f0');
+        fprintf(f0_ID, '\n');
+    end
+    fclose(f0_ID);
 end
-fclose(f0_ID);
 %% testing f0
 % mngGECO 1374
 % 6s: 1302.4355±25.5401
