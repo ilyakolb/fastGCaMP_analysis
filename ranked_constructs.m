@@ -7,7 +7,7 @@ pareto = 0; % set to 1 to do pareto optimization
 base = 'Z:/';
 
 control = '10.641';
-hits = {'10.921', '500.456', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits = {'10.921', '500.456', '500.686', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 % hits = {'10.921', '500.456', '500.688'};
 if isempty(whos('good'))
     good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200324_GCaMP96uf.xlsx'));

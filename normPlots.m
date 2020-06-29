@@ -4,7 +4,7 @@ clc
 % set to 1 to save figures
 saveOn = 1;
 
-saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\all\';
+saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps\';
 % nAP vs parameter plots (like jGCaMP7 paper)
 nAPs = [1 3 10 160];
 relevantAPs = [1 2 3 4];

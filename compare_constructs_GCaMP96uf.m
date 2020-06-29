@@ -31,11 +31,15 @@ clc
 rng('default'); % for reproducibility
 
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
-% hits = {'10.921', '500.456', '500.657', '500.470', '500.649'};
+hits = {'10.921', '500.456'};
 
 % all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
-% hits = {'500.456','500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+% hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+% hits = {}
+% all variants from best performers + xcamps + 7 series week (pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw)
+% substituting 10.641 for variants that are not in this batch as a hacky
+% way to preserve color scheme
+% hits = {'500.456', '10.641', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 
 % 6th round hits (dff, kinetics)
@@ -78,9 +82,9 @@ hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.4
 
 control= '10.641';
 
-alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 0;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
+alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+bleachCorrect = 1;           % 1 to bleach correct the 1FP traces << this doesn't really work>>
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =3;           % number of sample wells to plot
@@ -93,6 +97,10 @@ APstimNames = {'1AP', '3AP', '10AP', '160AP'};
 
 
 %%
+if bleachCorrect && (alignControlToStimPulse || alignMutantToStimPulse)
+    warning('Doing bleach correction with stim alignment: expect first 100 ms of traces to be weird!')
+end
+
 nStims = length(APstimNames);
 base = 'Z:/';
 if ismac
@@ -104,10 +112,10 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant')
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant')
     
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw.mat'), 'mutant')
+    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
     
     % 6th round ONLY with fixed jgcamp7f control
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
@@ -282,7 +290,7 @@ set(gcf,'Visible','on')
 % set x and y limits
 subplot(1,4,1); xlim([.23 4.1]); ylim([-0.1471    1.3917])
 subplot(1,4,2); xlim([.23 4.1]); ylim([-0.3724    2.7636])
-subplot(1,4,3); xlim([.23 4.1])
+subplot(1,4,3); xlim([.23 4.1]); ylim([-1 6.5])
 subplot(1,4,4); xlim([.23 6])
 
 % Table for Prism

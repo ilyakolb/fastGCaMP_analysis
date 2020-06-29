@@ -16,10 +16,10 @@ tToFit = t(indicesForFit);
 
 [fitresult, ~] = createFitDoubleExp(tToFit, yToFit);
 yFit = feval(fitresult, t);
-% hold on, plot(t, yFit, 'k-')
+hold on, plot(t, yFit, 'k-')
 
 y_detrended = y - yFit;
-% figure, plot(t, y_detrended)
+figure, plot(t, y_detrended)
 F = @(x,t)x(1)*exp(-x(2)*t) + x(3)*exp(-x(4)*t);
 x0 = [.006 2 -.1 -.8] ;
 modelParams = lsqcurvefit(F, x0, t, y);
