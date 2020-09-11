@@ -14,9 +14,9 @@
 % 10.641 GCaMP6s   : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 K78H T302L R303P D380Y T381R S383T R392G.10.641
 % 10.693 GCaMP6f   : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302L R303P A317E D380Y T381R S383T R392G.10.693
 % 10.921 GCaMP7f  : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302L R303P A317L D380Y.10.921
-% 10.1513 GCaMP7c: pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 L59Q E60P T302L R303P M378G K379S D380Y T381R R392G T412N.10.1513
+% 10.1513 jGCaMP7c: pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 L59Q E60P T302L R303P M378G K379S D380Y T381R R392G T412N.10.1513
 % 10.1473 jGCaMP7s
-% 10.1561: GCaMP7b pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302P R303P A317L M374Y D380Y T381R S383T R392G.10.1561
+% 10.1561: jGCaMP7b pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302P R303P A317L M374Y D380Y T381R S383T R392G.10.1561
 % XCaMP controls:
 % 538.1: XCaMP-Gf
 % 538.2: XCaMP-G
@@ -34,14 +34,14 @@ rng('default'); % for reproducibility
 % hits = {};
 
 % all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-% hits = {'500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits = {'500.456', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 % hits = {}
 % all variants from best performers + xcamps + 7 series week (pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw)
 % substituting 10.641 for variants that are not in this batch as a hacky
 % way to preserve color scheme
 % hits = {'500.456', '10.641', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
-hits = {'500.686'};
+% hits = {'10.921', '500.456', '500.686', '500.688', '500.333', '500.640', '500.712', '500.543', '500.707', '500.455'};
 
 % 6th round hits (dff, kinetics)
 %hits = {'10.921', '500.456', '500.640', '500.686', '500.675', '500.676', '500.688'};
@@ -87,7 +87,7 @@ alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in
 alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
 bleachCorrect = 0;           % 1 to bleach correct the 1FP traces
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
-plotRaw = 1;                 % 1 to plot raw well figures
+plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
 launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
 apNumIdx = 1;                % AP index for  (1, 3, 10, 160) to 
@@ -116,10 +116,10 @@ if isempty(whos('mutant'))
     % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant')
     
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
+    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
     
     % 6th round ONLY with fixed jgcamp7f control
-    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
 
     % ALL after week 2 of 6th round (updated ilastik parameters)
     % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200308.mat'), 'mutant')

@@ -10,7 +10,7 @@ control = '10.641';
 hits = {'10.921', '500.456', '500.686', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 % hits = {'10.921', '500.456', '500.688'};
 if isempty(whos('good'))
-    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200324_GCaMP96uf.xlsx'));
+    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200325_GCaMP96uf.xlsx'));
 end
 
 switch width(good)
@@ -29,6 +29,7 @@ good.Properties.VariableNames(~startsWith(good.Properties.VariableNames, 'Var'))
 cMap = getColorMap(length(hits));
 
 % remove bad stuff here
+good_filt = good;
 good_filt = good(~contains(good.construct, '410.'), :);
 good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
 good_filt = good_filt(good_filt.x1_fp > 1, :); % > GCaMP6s response
@@ -53,7 +54,7 @@ end
 nConstructs = size(rankedTable,1);
 varNamesToPlot = { 'x1_fp', 'decay_1_fp', 'norm_f0', 'timetopeak_1_fp'};
 nOtherVars = length(varNamesToPlot);
-figure('Position', [2034          47        1087         945])
+figure %('Position', [2034          47        1087         945])
 subplot(nOtherVars+1, 1, 1)
 bar(table2array(rankedTable(:, rankVarName)), 1);
 hold on, plot([0 nConstructs], [1 1], 'r-', 'linewidth' ,1)
