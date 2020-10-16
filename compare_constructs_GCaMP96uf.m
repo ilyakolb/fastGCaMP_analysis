@@ -33,8 +33,11 @@ rng('default'); % for reproducibility
 % hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
 % hits = {};
 
+% all hits
+hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+
 % all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-hits = {'500.456', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+% hits = {'500.456', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 % hits = {}
 % all variants from best performers + xcamps + 7 series week (pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw)
 % substituting 10.641 for variants that are not in this batch as a hacky
@@ -113,10 +116,10 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant')
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant')
     
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
     
     % 6th round ONLY with fixed jgcamp7f control
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
@@ -190,9 +193,6 @@ if isempty(whos('mutant'))
 
 end
 
-% 2/19/20 FOUND BAD JGCAMP7F CONTROL, EXCLUDE ALL THOSE
-% exclude_bad_dates
-    
 tableVarNames = {'construct', 'nWells', 'df_f_AP_mean', 'df_f_AP_std', 'rise_half_AP_ms_mean', 'rise_half_AP_ms_std', 'rise_full_AP_ms_mean', 'rise_full_AP_ms_std',...
     'f0_mean', 'f0_std', 'decay_half_med_mean', 'decay_half_med_std', 'SNR', 'SNR_std'};
 comparisonTable = table('Size', [length(hits)+1 length(tableVarNames)], 'VariableTypes', {'string', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double'}, ...
@@ -245,7 +245,7 @@ for i=1:length(hits)
     end
     
     hits_med_med_dff(:,:,i)=mean(mutant_df_f_med,3);
-    hits_med_med_dff_std(:,:,i)=std(mutant_df_f_med,0,3)/sqrt(size(mutant_df_f_med,3));
+    hits_med_med_dff_sterr(:,:,i)=std(mutant_df_f_med,0,3)/sqrt(size(mutant_df_f_med,3));
     
     if plotRaw
         plotRawCellData(currentMutant,numSampleWells, launchFiji);
@@ -275,7 +275,7 @@ for n=1:nStims
     
     hold on
     for i=1:length(hits)
-        shadedErrorBar(time,hits_med_med_dff(:,n,i),hits_med_med_dff_std(:,n,i),'lineprops', {'color', cMap(i,:)}, 'transparent',1);
+        shadedErrorBar(time,hits_med_med_dff(:,n,i),hits_med_med_dff_sterr(:,n,i),'lineprops', {'color', cMap(i,:)}, 'transparent',1);
     end
 
     set(gca,'FontSize',10)
@@ -305,10 +305,18 @@ comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f
     comparisonTable.decay_half_med_mean, comparisonTable.decay_half_med_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
 % calculate statistics
 disp('STATISTICS')
+disp([num2str(length(mutant)) ' unique constructs']);
 
-disp([num2str(length(mutant)) ' unique constructs'])
-% disp([num2str(length(unique(horzcat(mutant.plate)))) ' plates'])
+% save data for plotting
+plot_out.control_med_med_dff = control_med_med_dff;
+plot_out.hits_med_med_dff = hits_med_med_dff;
+plot_out.time = time;
+plot_out.hits = hits;
+plot_out.control = control;
+plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
+plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
+save('plotting.mat', 'plot_out')
 
 % normPlots
 

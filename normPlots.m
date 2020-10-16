@@ -4,7 +4,7 @@ clc
 % set to 1 to save figures
 saveOn = 1;
 
-saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\ufGCaMP paper\figures\bests_vs_7_vs_xcamps\';
+saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\jGCaMP8 patent\figures\all\';
 % nAP vs parameter plots (like jGCaMP7 paper)
 nAPs = [1 3 10 160];
 relevantAPs = [1 2 3 4];
@@ -15,7 +15,13 @@ for i = 1:length(hits)
     mutant_hits = [mutant_hits mutant(contains({mutant.construct}, hits{i}))];
 end
 % addendum: string to add on to construct names for clarity
-addendum = {' GCaMP6s', '', '', '', '', '', '', '', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
+% original
+% addendum = {' GCaMP6s', '', '', '', '', '', '', '', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
+% new
+addendum = {' GCaMP6s', ' GCaMP6f', ' jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', '', '', '', '', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
+
+% hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+
 % addendum = {' GCaMP6s', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', '', '', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 
 
@@ -38,8 +44,8 @@ timetopeak_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_timetopeak
 halfdecay_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_halfdecay_sterr, 'k-', 'linewidth', 2);
 
 plotLegend = {mutant_hits.construct};
-% plotLegend = [plotLegend' addendum'];
-% plotLegend = join(plotLegend);
+plotLegend = [plotLegend' addendum'];
+plotLegend = join(plotLegend);
 
 control_f0 = controlMutant.f0';
 
