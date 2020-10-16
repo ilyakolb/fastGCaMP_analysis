@@ -3,6 +3,10 @@
 Created on Fri Oct 16 09:19:08 2020
 
 @author: kolbi
+
+@todo:
+    title, labels, axes
+    
 """
 
 import numpy as np
@@ -51,6 +55,7 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
     fillcolor= color, # 'rgba(0,100,80,0.2)',
     line_color='rgba(255,255,255,0)',
     showlegend=False,
+    legendgroup=construct_label,
     name=construct_label,
     opacity= 0.5
     ), row=1,
@@ -62,6 +67,7 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
     x=t, y=y_mean,
     line_color=color, # 'rgb(0,100,80)',
     name=construct_label,
+    legendgroup=construct_label,
     showlegend=(stim_subplot_idx == 1),
     ), row=1,
     col=stim_subplot_idx,)
