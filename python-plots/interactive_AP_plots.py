@@ -5,7 +5,8 @@ Created on Fri Oct 16 09:19:08 2020
 @author: kolbi
 
 @todo:
-    title, labels, axes
+    remove first ~100 ms for alignment artifacts
+    why is response occuring before 1 s?
     
 """
 
@@ -16,7 +17,6 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 import plotly.express as px
 
-pio.templates.default = "plotly_white"
 
 def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_label):
     '''
@@ -72,6 +72,8 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
     ), row=1,
     col=stim_subplot_idx,)
 
+t_to_ignore_s = 0.5 # initial seconds to remove to get rid of bleaching artifacts
+pio.templates.default = "plotly_white"
 plot_mat = loadmat(r'..\plotting.mat')
 
 control_med_med_dff = plot_mat['plot_out'][0,0]['control_med_med_dff'] # [time x nStims]
@@ -79,17 +81,27 @@ hits_med_med_dff = plot_mat['plot_out'][0,0]['hits_med_med_dff'] # [time x nStim
 time = plot_mat['plot_out'][0,0]['time'][0] # time vector
 hits = plot_mat['plot_out'][0,0]['hits'] # array of hit name strings
 control = plot_mat['plot_out'][0,0]['control'][0] # control name string
-hits_med_med_dff_sterr = np.random.random_sample(hits_med_med_dff.shape)/100
-control_med_med_dff_sterr = np.random.random_sample(control_med_med_dff.shape)/100
+hits_med_med_dff_sterr =  plot_mat['plot_out'][0,0]['hits_med_med_dff_sterr']
+control_med_med_dff_sterr = plot_mat['plot_out'][0,0]['control_med_med_dff_sterr']
+
+fs = 1/(time[1]-time[0])
+t_to_ignore_samples = int(t_to_ignore_s * fs)
+
+# ignore samples in beginning
+time = time[t_to_ignore_samples:]
+control_med_med_dff = control_med_med_dff[t_to_ignore_samples:,]
+hits_med_med_dff = hits_med_med_dff[t_to_ignore_samples:,]
+control_med_med_dff_sterr = control_med_med_dff_sterr[t_to_ignore_samples:,]
+hits_med_med_dff_sterr = hits_med_med_dff_sterr[t_to_ignore_samples:,]
 
 hits_label = [h[0] for h in hits[0]]
 n_stims = control_med_med_dff.shape[1]
 n_hits = hits_med_med_dff.shape[2]
 
-stim_names = {'1', '3', '10', '160'}
+stim_names = ('1 AP', '3 AP', '10 AP', '160 AP')
 colorscheme = px.colors.qualitative.Alphabet # 0th: control
 
-fig = make_subplots(rows=1, cols=n_stims) # go.Figure()
+fig = make_subplots(rows=1, cols=n_stims, subplot_titles=stim_names, x_title='Time (s)',   y_title='dF/F') # go.Figure()
 
 # cycle through stim number
 for i in range(n_stims):
@@ -102,7 +114,16 @@ for i in range(n_stims):
         add_shaded_trace(time, hits_med_med_dff[:,i,j], hits_med_med_dff_sterr[:,i,j], i+1, colorscheme[j+1], hits_label[j])
 
 fig.update_traces(mode='lines')
-fig.update_layout(hovermode="closest", width=1400, height=800)
+fig.update_layout(hovermode="closest", #, width=800, height=400,
+    title="AP responses in cultured neuron screen",
+    title_font_size=18,
+    #xaxis_title="time (s)",
+    legend_title="variants",
+    font=dict(
+        family="Arial",
+        size=14,
+    )
+)
 fig.show()
-fig.write_html('first_figure.html', auto_open=True)
+fig.write_html('interactive_AP_traces.html', auto_open=True)
 

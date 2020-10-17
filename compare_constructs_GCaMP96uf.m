@@ -86,9 +86,9 @@ hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543'
 
 control= '10.641';
 
-alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 0;           % 1 to bleach correct the 1FP traces
+alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+bleachCorrect = 1;           % 1 to bleach correct the 1FP traces
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
@@ -211,21 +211,22 @@ comparisonTable(1,:) = {controlMutant.construct, controlMutant.nreplicate, nanme
     nanmean(controlMutant.decay_half_med(apNumIdx,:) + controlMutant.decay_half_med_comp(apNumIdx,:)), nanstd(controlMutant.decay_half_med(apNumIdx,:)+controlMutant.decay_half_med_comp(apNumIdx,:)),...
     nanmean(controlMutant.SNR(apNumIdx,:)), nanstd(controlMutant.SNR(apNumIdx,:))};
 
-
-if alignControlToStimPulse
-    control_df_f_med = align_responses(controlMutant, nStims, 0);
-else
-    control_df_f_med = controlMutant.df_f_med;
-end
-
+control_df_f_med = controlMutant.df_f_med;
+time=(1:size(control_df_f_med,1))/Fs;%;%1/35:1/35:249/35;
 control_med_med_dff=mean(control_df_f_med,3);
-control_med_med_dff_sterr=std(control_df_f_med,0,3)/sqrt(size(control_df_f_med,3));
-time=(1:length(control_med_med_dff))/Fs;%;%1/35:1/35:249/35;
 
 % bleach correct only 1FP trace!
 if bleachCorrect
      control_med_med_dff(:,1) = bleachCorr(time,control_med_med_dff(:,1));
 end
+
+
+if alignControlToStimPulse
+    control_df_f_med = align_responses(controlMutant, nStims, 0);
+end
+
+control_med_med_dff_sterr=std(control_df_f_med,0,3)/sqrt(size(control_df_f_med,3));
+
 
 for i=1:length(hits)
     found_hits_idx = find(strcmp({mutant.construct},hits{1,i}));
@@ -245,6 +246,7 @@ for i=1:length(hits)
     end
     
     hits_med_med_dff(:,:,i)=mean(mutant_df_f_med,3);
+    hits_med_med_dff_unaligned(:,:,i)=mean(currentMutant.df_f_med,3);
     hits_med_med_dff_sterr(:,:,i)=std(mutant_df_f_med,0,3)/sqrt(size(mutant_df_f_med,3));
     
     if plotRaw
@@ -260,12 +262,13 @@ for i=1:length(hits)
     nROI{end+1} = currentMutant.nSegment;
 end
 
-% bleach correct 1AP mutant traces
+% bleach correct 1AP mutant traces -- BELONGS HERE?
 if bleachCorrect
     for i = 1:length(hits)
-        hits_med_med_dff(:,1,i) = bleachCorr(time, hits_med_med_dff(:,1,i));
+        hits_med_med_dff(:,1,i) = bleachCorr(time, hits_med_med_dff_unaligned(:,1,i));
     end
 end
+
 % f = figure('name', 'comparison', 'position', [2165         616        1238         249]);
 cMap = getColorMap(length(hits));
 
