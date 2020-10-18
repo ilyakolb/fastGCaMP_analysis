@@ -211,18 +211,19 @@ comparisonTable(1,:) = {controlMutant.construct, controlMutant.nreplicate, nanme
     nanmean(controlMutant.decay_half_med(apNumIdx,:) + controlMutant.decay_half_med_comp(apNumIdx,:)), nanstd(controlMutant.decay_half_med(apNumIdx,:)+controlMutant.decay_half_med_comp(apNumIdx,:)),...
     nanmean(controlMutant.SNR(apNumIdx,:)), nanstd(controlMutant.SNR(apNumIdx,:))};
 
-control_df_f_med = controlMutant.df_f_med;
-time=(1:size(control_df_f_med,1))/Fs;%;%1/35:1/35:249/35;
-control_med_med_dff=mean(control_df_f_med,3);
-
-% bleach correct only 1FP trace!
-if bleachCorrect
-     control_med_med_dff(:,1) = bleachCorr(time,control_med_med_dff(:,1));
-end
-
 
 if alignControlToStimPulse
     control_df_f_med = align_responses(controlMutant, nStims, 0);
+else
+    control_df_f_med = controlMutant.df_f_med;
+end
+
+time=(1:size(control_df_f_med,1))/Fs;%;%1/35:1/35:249/35;
+control_df_f_med_mean=nanmean(control_df_f_med,3);
+
+% bleach correct only 1FP trace!
+if bleachCorrect
+     control_df_f_med_mean(:,1) = bleachCorr(time,control_df_f_med_mean(:,1));
 end
 
 control_med_med_dff_sterr=std(control_df_f_med,0,3)/sqrt(size(control_df_f_med,3));
@@ -246,7 +247,7 @@ for i=1:length(hits)
     end
     
     hits_med_med_dff(:,:,i)=mean(mutant_df_f_med,3);
-    hits_med_med_dff_unaligned(:,:,i)=mean(currentMutant.df_f_med,3);
+    % hits_med_med_dff_unaligned(:,:,i)=mean(currentMutant.df_f_med,3);
     hits_med_med_dff_sterr(:,:,i)=std(mutant_df_f_med,0,3)/sqrt(size(mutant_df_f_med,3));
     
     if plotRaw
@@ -265,16 +266,16 @@ end
 % bleach correct 1AP mutant traces -- BELONGS HERE?
 if bleachCorrect
     for i = 1:length(hits)
-        hits_med_med_dff(:,1,i) = bleachCorr(time, hits_med_med_dff_unaligned(:,1,i));
+        hits_med_med_dff(:,1,i) = bleachCorr(time, hits_med_med_dff(:,1,i));
     end
 end
 
-% f = figure('name', 'comparison', 'position', [2165         616        1238         249]);
+f = figure('name', 'comparison', 'position', [2165         616        1238         249]);
 cMap = getColorMap(length(hits));
 
 for n=1:nStims
     subplot(1,nStims,n)
-    shadedErrorBar(time,control_med_med_dff(:,n),control_med_med_dff_sterr(:,n), 'lineprops', 'k-', 'transparent',1); % IK mod
+    shadedErrorBar(time,control_df_f_med_mean(:,n),control_med_med_dff_sterr(:,n), 'lineprops', 'k-', 'transparent',1); % IK mod
     
     hold on
     for i=1:length(hits)
@@ -311,7 +312,7 @@ disp('STATISTICS')
 disp([num2str(length(mutant)) ' unique constructs']);
 
 % save data for plotting
-plot_out.control_med_med_dff = control_med_med_dff;
+plot_out.control_med_med_dff = control_df_f_med_mean;
 plot_out.hits_med_med_dff = hits_med_med_dff;
 plot_out.time = time;
 plot_out.hits = hits;

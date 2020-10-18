@@ -12,7 +12,7 @@ function [df_f_med_aligned] = align_responses(currentMutant, nStims, debugFlag)
 %                 alignment
 
 warning('FIX align_responses!')
-trueStimIndex = 200; % make the plots centered on 1-second mark
+trueStimIndex = 201; % make the plots centered on 1-second mark
 imagingDataDir = 'Z:\GECIScreenData\GECI_Imaging_Data';
 % APnumString = '001FP';
 allPlateDir = dir(fullfile(imagingDataDir, '*_GCaMP96uf_*\P*')); % all plate directories
@@ -69,6 +69,12 @@ for i = 1:size(df_f_med,2) % cycle through stim number (1,3,10,160)
     for j = 1:size(df_f_med,3) % cycle through n replicates
         current_df_f_med = df_f_med(:,i,j);
         df_f_med_aligned(:,i,j) = circshift(current_df_f_med, -1*stimDelta(j,i), 1);
+        % replace with nans
+        if stimDelta(j,i) < 0
+            df_f_med_aligned(1:abs(stimDelta(j,i)),i,j) = nan;
+        elseif stimDelta(j,i) > 0
+            df_f_med_aligned(end-stimDelta(j,i):end,i,j) = nan;
+        end
     end
 end
 

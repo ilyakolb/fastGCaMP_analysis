@@ -5,7 +5,6 @@ Created on Fri Oct 16 09:19:08 2020
 @author: kolbi
 
 @todo:
-    remove first ~100 ms for alignment artifacts
     why is response occuring before 1 s?
     
 """
