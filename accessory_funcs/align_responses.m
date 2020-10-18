@@ -34,14 +34,18 @@ for i = 1:length(currentMutant.plate)
             currentWellFolder = fullfile(currentWellDir.folder, currentWellDir.name);
             
             try
-                load(fullfile(currentWellFolder, 'ws_info_array.mat'), 'ws_info_array');
+                load(fullfile(currentWellFolder, 'para_array_cherry.mat'), 'ephus_info');
                 allStimFrames = zeros(1,4);
-                for k = 1:length(ws_info_array)
-                    [~,allStimFrames(k)] = min(abs(ws_info_array(k).ImageTime - ws_info_array(k).VPulseTime(1)));
+                for k = 1:length(ephus_info)
+                    [~,allStimFrames(k)] = min(abs(ephus_info(k).ImageTime - ephus_info(k).VPulseTime(1)));
                 end
             catch e
-                warning('ws_info_array not found! Must be an old plate')
-                allStimFrames = ones(1,nStims) * trueStimIndex;
+                if strcmp(e.identifier, 'MATLAB:load:couldNotReadFile')
+                    warning('para_array_cherry.mat not found!')
+                    allStimFrames = ones(1,nStims) * trueStimIndex;
+                else
+                    rethrow(e)
+                end
             end
             
         else

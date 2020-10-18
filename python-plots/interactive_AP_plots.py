@@ -86,14 +86,16 @@ control_med_med_dff_sterr = plot_mat['plot_out'][0,0]['control_med_med_dff_sterr
 fs = 1/(time[1]-time[0])
 t_to_ignore_samples = int(t_to_ignore_s * fs)
 
-# ignore samples in beginning
-time = time[t_to_ignore_samples:]
-control_med_med_dff = control_med_med_dff[t_to_ignore_samples:,]
-hits_med_med_dff = hits_med_med_dff[t_to_ignore_samples:,]
-control_med_med_dff_sterr = control_med_med_dff_sterr[t_to_ignore_samples:,]
-hits_med_med_dff_sterr = hits_med_med_dff_sterr[t_to_ignore_samples:,]
+# ignore samples in beginning and end (due to alignment)
+time = time[t_to_ignore_samples:-1*t_to_ignore_samples]
+control_med_med_dff = control_med_med_dff[t_to_ignore_samples:-1*t_to_ignore_samples,]
+hits_med_med_dff = hits_med_med_dff[t_to_ignore_samples:-1*t_to_ignore_samples,]
+control_med_med_dff_sterr = control_med_med_dff_sterr[t_to_ignore_samples:-1*t_to_ignore_samples,]
+hits_med_med_dff_sterr = hits_med_med_dff_sterr[t_to_ignore_samples:-1*t_to_ignore_samples,]
 
-hits_label = [h[0] for h in hits[0]]
+control_label= 'GCaMP6s'
+hits_label = ['GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP8.712', 
+              'jGCaMP8.543', 'jGCaMP8.707', 'jGCaMP8.455', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
 n_stims = control_med_med_dff.shape[1]
 n_hits = hits_med_med_dff.shape[2]
 
@@ -106,7 +108,7 @@ fig = make_subplots(rows=1, cols=n_stims, subplot_titles=stim_names, x_title='Ti
 for i in range(n_stims):
     
     # plot control
-    add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], i+1, colorscheme[0], control)
+    add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], i+1, colorscheme[0], control_label)
     
     # plot hits
     for j in range(n_hits):
