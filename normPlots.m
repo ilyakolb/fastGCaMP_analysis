@@ -1,8 +1,9 @@
 %% Run this after running compare_constructs_GCaMP96uf
 clc
+close all
 
 % set to 1 to save figures
-saveOn = 1;
+saveOn = 0;
 
 saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\jGCaMP8 patent\figures\all\';
 % nAP vs parameter plots (like jGCaMP7 paper)
@@ -18,17 +19,15 @@ end
 % original
 % addendum = {' GCaMP6s', '', '', '', '', '', '', '', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 % new
-addendum = {' GCaMP6s', ' GCaMP6f', ' jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', '', '', '', '', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
-
+addendum = {'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP8.712', 'jGCaMP8.543', 'jGCaMP8.707', 'jGCaMP8.455', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 % hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 % addendum = {' GCaMP6s', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', '', '', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 
-
+normPlots_struct = [];
 control_dff_mean = nanmean(controlMutant.df_fpeak_med,2);
 control_dff_sterr = std(controlMutant.df_fpeak_med,0,2)/sqrt(size(controlMutant.df_fpeak_med,2));
 control_SNR_mean = nanmean(controlMutant.SNR,2);
-% control_SNR_sterr = std(controlMutant.SNR,0,2)/sqrt(size(controlMutant.SNR,2));
 control_SNR_sterr = normalized_error(controlMutant.SNR, controlMutant.SNR, 2);
 control_halfrise_mean = nanmean(controlMutant.rise_half_med,2);
 control_halfrise_sterr = std(controlMutant.rise_half_med,0,2)/sqrt(size(controlMutant.rise_half_med,2));
@@ -37,14 +36,29 @@ control_timetopeak_sterr = std(controlMutant.timetopeak_med,0,2)/sqrt(size(contr
 control_halfdecay_mean = nanmean(controlMutant.decay_half_med,2);
 control_halfdecay_sterr = std(controlMutant.decay_half_med,0,2)/sqrt(size(controlMutant.decay_half_med,2));
 
+% add control to normPlots_struct
+normPlots_struct(1).construct = addendum{1};
+normPlots_struct(1).dff_mean = control_dff_mean;
+normPlots_struct(1).dff_sterr = control_dff_sterr;
+normPlots_struct(1).SNR_mean = control_SNR_mean;
+normPlots_struct(1).SNR_sterr = control_SNR_sterr;
+normPlots_struct(1).halfrise_mean = control_halfrise_mean;
+normPlots_struct(1).halfrise_sterr = control_halfrise_sterr;
+normPlots_struct(1).timetopeak_mean = control_timetopeak_mean;
+normPlots_struct(1).timetopeak_sterr = control_timetopeak_sterr;
+normPlots_struct(1).halfdecay_mean = control_halfdecay_mean;
+normPlots_struct(1).halfdecay_sterr = control_halfdecay_sterr;
+
+
 dff_fig = figure; errorbar(nAPs, control_dff_mean, control_dff_sterr, 'k-', 'linewidth', 2);
 SNR_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_SNR_sterr, 'k-', 'linewidth', 2);
 halfrise_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_halfrise_sterr, 'k-', 'linewidth', 2);
 timetopeak_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_timetopeak_sterr, 'k-', 'linewidth', 2);
 halfdecay_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_halfdecay_sterr, 'k-', 'linewidth', 2);
 
-plotLegend = {mutant_hits.construct};
-plotLegend = [plotLegend' addendum'];
+% plotLegend = {mutant_hits.construct};
+% plotLegend = [plotLegend' addendum'];
+plotLegend = addendum;
 plotLegend = join(plotLegend);
 
 control_f0 = controlMutant.f0';
@@ -117,7 +131,18 @@ for i = 2:length(mutant_hits)
     disp([plotMutant.construct ' SNR'])
     join([string(mutant_SNR_mean(relevantAPs))  string(mutant_SNR_sterr(relevantAPs))], '±')
     
-
+    % add mutant to normPlots_struct
+    normPlots_struct(i).construct = addendum{i};
+    normPlots_struct(i).dff_mean = mutant_dff_mean;
+    normPlots_struct(i).dff_sterr = mutant_dff_sterr;
+    normPlots_struct(i).SNR_mean = mutant_SNR_mean;
+    normPlots_struct(i).SNR_sterr = mutant_SNR_sterr;
+    normPlots_struct(i).halfrise_mean = mutant_halfrise_mean;
+    normPlots_struct(i).halfrise_sterr = mutant_halfrise_sterr;
+    normPlots_struct(i).timetopeak_mean = mutant_timetopeak_mean;
+    normPlots_struct(i).timetopeak_sterr = mutant_timetopeak_sterr;
+    normPlots_struct(i).halfdecay_mean = mutant_halfdecay_mean;
+    normPlots_struct(i).halfdecay_sterr = mutant_halfdecay_sterr;
 end
 
 figure(dff_fig); 
@@ -184,6 +209,9 @@ if saveOn
     end
     fclose(f0_ID);
 end
+
+% save struct for plotting in plotly
+save('normPlots.mat', 'normPlots_struct', 'nAPs')
 %% testing f0
 % mngGECO 1374
 % 6s: 1302.4355±25.5401

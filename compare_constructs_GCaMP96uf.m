@@ -86,9 +86,9 @@ hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543'
 
 control= '10.641';
 
-alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 1;           % 1 to bleach correct the 1FP traces
+alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+bleachCorrect = 0;           % 1 to bleach correct the 1FP traces
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
@@ -320,7 +320,8 @@ plot_out.control = control;
 plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
 plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
+% save struct for plotting in plotly
 save('plotting.mat', 'plot_out')
 
-% normPlots
+normPlots
 
