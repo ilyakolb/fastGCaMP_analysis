@@ -114,7 +114,7 @@ for i in range(n_stims):
 
 fig.update_traces(mode='lines')
 fig.update_layout(hovermode="closest", #, width=800, height=400,
-    title="AP responses in cultured neuron screen",
+    title="<b>AP responses in cultured neuron screen</b>",
     title_font_size=18,
     #xaxis_title="time (s)",
     legend_title="variants",

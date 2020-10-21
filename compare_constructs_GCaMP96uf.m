@@ -321,7 +321,7 @@ plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
 plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
 % save struct for plotting in plotly
-save('plotting.mat', 'plot_out')
+% save('plotting.mat', 'plot_out')
 
 normPlots
 

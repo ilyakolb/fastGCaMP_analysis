@@ -37,17 +37,18 @@ control_halfdecay_mean = nanmean(controlMutant.decay_half_med,2);
 control_halfdecay_sterr = std(controlMutant.decay_half_med,0,2)/sqrt(size(controlMutant.decay_half_med,2));
 
 % add control to normPlots_struct
+% for control, all means = 1
 normPlots_struct(1).construct = addendum{1};
-normPlots_struct(1).dff_mean = control_dff_mean;
+normPlots_struct(1).dff_mean = ones(length(nAPs),1);
 normPlots_struct(1).dff_sterr = control_dff_sterr;
-normPlots_struct(1).SNR_mean = control_SNR_mean;
-normPlots_struct(1).SNR_sterr = control_SNR_sterr;
-normPlots_struct(1).halfrise_mean = control_halfrise_mean;
-normPlots_struct(1).halfrise_sterr = control_halfrise_sterr;
-normPlots_struct(1).timetopeak_mean = control_timetopeak_mean;
-normPlots_struct(1).timetopeak_sterr = control_timetopeak_sterr;
-normPlots_struct(1).halfdecay_mean = control_halfdecay_mean;
-normPlots_struct(1).halfdecay_sterr = control_halfdecay_sterr;
+normPlots_struct(1).SNR_mean_norm = ones(length(nAPs),1);
+normPlots_struct(1).SNR_sterr_norm = control_SNR_sterr;
+normPlots_struct(1).halfrise_mean_norm = ones(length(nAPs),1);
+normPlots_struct(1).halfrise_sterr_norm = control_halfrise_sterr;
+normPlots_struct(1).timetopeak_mean_norm = ones(length(nAPs),1);
+normPlots_struct(1).timetopeak_sterr_norm = control_timetopeak_sterr;
+normPlots_struct(1).halfdecay_mean_norm = ones(length(nAPs),1);
+normPlots_struct(1).halfdecay_sterr_norm = control_halfdecay_sterr;
 
 
 dff_fig = figure; errorbar(nAPs, control_dff_mean, control_dff_sterr, 'k-', 'linewidth', 2);
@@ -56,10 +57,8 @@ halfrise_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_halfrise_ste
 timetopeak_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_timetopeak_sterr, 'k-', 'linewidth', 2);
 halfdecay_fig = figure; errorbar(nAPs, ones(length(nAPs),1), control_halfdecay_sterr, 'k-', 'linewidth', 2);
 
-% plotLegend = {mutant_hits.construct};
-% plotLegend = [plotLegend' addendum'];
 plotLegend = addendum;
-plotLegend = join(plotLegend);
+% plotLegend = join(plotLegend);
 
 control_f0 = controlMutant.f0';
 
@@ -135,14 +134,14 @@ for i = 2:length(mutant_hits)
     normPlots_struct(i).construct = addendum{i};
     normPlots_struct(i).dff_mean = mutant_dff_mean;
     normPlots_struct(i).dff_sterr = mutant_dff_sterr;
-    normPlots_struct(i).SNR_mean = mutant_SNR_mean;
-    normPlots_struct(i).SNR_sterr = mutant_SNR_sterr;
-    normPlots_struct(i).halfrise_mean = mutant_halfrise_mean;
-    normPlots_struct(i).halfrise_sterr = mutant_halfrise_sterr;
-    normPlots_struct(i).timetopeak_mean = mutant_timetopeak_mean;
-    normPlots_struct(i).timetopeak_sterr = mutant_timetopeak_sterr;
-    normPlots_struct(i).halfdecay_mean = mutant_halfdecay_mean;
-    normPlots_struct(i).halfdecay_sterr = mutant_halfdecay_sterr;
+    normPlots_struct(i).SNR_mean_norm = mutant_SNR_mean_norm;
+    normPlots_struct(i).SNR_sterr_norm = mutant_SNR_sterr_norm;
+    normPlots_struct(i).halfrise_mean_norm = mutant_halfrise_mean_norm;
+    normPlots_struct(i).halfrise_sterr_norm = mutant_halfrise_sterr_norm;
+    normPlots_struct(i).timetopeak_mean_norm = mutant_timetopeak_mean_norm;
+    normPlots_struct(i).timetopeak_sterr_norm = mutant_timetopeak_sterr_norm;
+    normPlots_struct(i).halfdecay_mean_norm = mutant_halfdecay_mean_norm;
+    normPlots_struct(i).halfdecay_sterr_norm = mutant_halfdecay_sterr_norm;
 end
 
 figure(dff_fig); 
