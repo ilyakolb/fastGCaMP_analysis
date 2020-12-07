@@ -116,9 +116,11 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7
+    % confirmed, validated, DATA ON WEBSITE
     load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant')
     
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
+    % used for F0 calculations
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
     
     % 6th round ONLY with fixed jgcamp7f control
@@ -270,7 +272,7 @@ if bleachCorrect
     end
 end
 
-f = figure('name', 'comparison', 'position', [2165         616        1238         249]);
+% f = figure('name', 'comparison', 'position', [2165         616        1238         249]);
 cMap = getColorMap(length(hits));
 
 for n=1:nStims
@@ -303,10 +305,11 @@ subplot(1,4,4); xlim([.23 6])
 % Parameters: DF_F, Half Rise Time, Full Rise Time, Half Decay Time, F0
 % open this in Variable explorer, copy, and paste to Prism
 % Prism options: New Table (column), Enter values calculated elsewhere,
-% Mean, 
+
 comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f_AP_mean, comparisonTable.df_f_AP_std, comparisonTable.nWells, ...
     comparisonTable.rise_half_AP_ms_mean, comparisonTable.rise_half_AP_ms_std, comparisonTable.nWells, comparisonTable.rise_full_AP_ms_mean, comparisonTable.rise_full_AP_ms_std, comparisonTable.nWells, ...
     comparisonTable.decay_half_med_mean, comparisonTable.decay_half_med_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
+writetable(comparisonTable_forPrism, fullfile('D:\ufgcamp_paper_data\culture-APdata-csv\', ['APdata_' APstimNames{apNumIdx} '.csv']))
 % calculate statistics
 disp('STATISTICS')
 disp([num2str(length(mutant)) ' unique constructs']);
@@ -323,5 +326,5 @@ plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 % save struct for plotting in plotly
 % save('plotting.mat', 'plot_out')
 
-normPlots
+% normPlots
 

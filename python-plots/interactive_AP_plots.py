@@ -55,8 +55,8 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
     legendgroup=construct_label,
     name=construct_label,
     opacity= 0.5
-    ), row=1,
-    col=stim_subplot_idx)
+    ), row=(2 if stim_subplot_idx > 2 else 1),
+    col=(1 if stim_subplot_idx%2 == 1 else 2))
     
     
     # draw mean line
@@ -66,9 +66,10 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
     name=construct_label,
     legendgroup=construct_label,
     showlegend=(stim_subplot_idx == 1),
-    ), row=1,
-    col=stim_subplot_idx,)
+    ), row=(2 if stim_subplot_idx > 2 else 1),
+    col=(1 if stim_subplot_idx%2 == 1 else 2),)
 
+html_write_dir = r'D:\site\ilyakolb.github.io\interactive_AP_traces.html'
 t_to_ignore_s = 0.5 # initial seconds to remove to get rid of bleaching artifacts
 pio.templates.default = "plotly_white"
 plot_mat = loadmat(r'..\AP_traces_all.mat')
@@ -100,7 +101,7 @@ n_hits = hits_med_med_dff.shape[2]
 stim_names = ('1 AP', '3 AP', '10 AP', '160 AP')
 colorscheme = px.colors.qualitative.Alphabet # 0th: control
 
-fig = make_subplots(rows=1, cols=n_stims, subplot_titles=stim_names, x_title='Time (s)',   y_title='dF/F') # go.Figure()
+fig = make_subplots(rows=2, cols=2, subplot_titles=stim_names, x_title='Time (s)',   y_title='dF/F') # go.Figure()
 
 # cycle through stim number
 for i in range(n_stims):
@@ -124,5 +125,5 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
     )
 )
 fig.show()
-fig.write_html('interactive_AP_traces.html', auto_open=True)
+fig.write_html(html_write_dir, auto_open=True)
 

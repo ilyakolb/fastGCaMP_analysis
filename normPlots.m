@@ -39,7 +39,7 @@ control_halfdecay_sterr = std(controlMutant.decay_half_med,0,2)/sqrt(size(contro
 % add control to normPlots_struct
 % for control, all means = 1
 normPlots_struct(1).construct = addendum{1};
-normPlots_struct(1).dff_mean = ones(length(nAPs),1);
+normPlots_struct(1).dff_mean = control_dff_mean;
 normPlots_struct(1).dff_sterr = control_dff_sterr;
 normPlots_struct(1).SNR_mean_norm = ones(length(nAPs),1);
 normPlots_struct(1).SNR_sterr_norm = control_SNR_sterr;

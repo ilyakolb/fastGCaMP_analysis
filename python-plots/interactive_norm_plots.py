@@ -13,7 +13,6 @@ total 5 plots to generate
     multi row subplots
     
 '''
-import numpy as np
 from scipy.io import loadmat
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -24,9 +23,10 @@ n_subplots = 6
 n_rows = 2
 n_cols = 3
 
+html_write_dir = r'D:\site\ilyakolb.github.io\interactive_norm_plots.html'
 pio.templates.default = "plotly_white"
 
-subplot_titles = ['DF/F', 'SNR (norm. to GCaMP6s)', 'half-rise time (norm. to GCaMP6s)', 'full rise time (norm. to GCaMP6s)', 'half-decay time (norm. to GCaMP6s)']
+subplot_titles = ['peak dF/F', 'SNR (norm.)', 'half-rise time (norm.)', 'full rise time (norm.)', 'half-decay time (norm.)']
 fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=subplot_titles, x_title='number of action potentials') 
 
 plot_mat = loadmat(r'..\normPlots.mat')
@@ -80,5 +80,7 @@ fig.update_xaxes(type="log",
     )
 
 fig.show()
-fig.write_html('interactive_norm_plots.html', auto_open=True)
+fig.write_html(html_write_dir, auto_open=True)
+
+
 
