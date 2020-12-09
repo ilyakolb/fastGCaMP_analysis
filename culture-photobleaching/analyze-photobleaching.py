@@ -65,23 +65,23 @@ t = np.arange(0,len(data))*T_s
 
 df_plt = pd.DataFrame(index = hits, columns=['bleach'])
 for h in hits:
-    plt.figure()
+    # plt.figure()
     
     h_array = list()
     for i,plate in enumerate(plate_names):
         bg_trace = data[get_column_name(data, plate, h, 0)]
         
-        ax = plt.subplot(2,1,i+1)
+        # ax = plt.subplot(2,1,i+1)
         for c in range(1,4):
             cell_trace = data[get_column_name(data, plate, h, c)]
             cell_trace_bg = cell_trace - bg_trace
             cell_trace_bg = cell_trace_bg / cell_trace_bg[0]
-            plt.plot(cell_trace_bg)
+            # plt.plot(cell_trace_bg)
             
             # add array to list
             h_array.append(cell_trace_bg.to_numpy())
-        ax.set_xlabel('Time (s)')
-        ax.set_title(h)
+        # ax.set_xlabel('Time (s)')
+        # ax.set_title(h)
     
     df_plt.loc[h] = [h_array]
 
@@ -89,3 +89,25 @@ for h in hits:
 df_plt.loc['10dot1473']['bleach'].pop(0) # cell is all over the place
 df_plt.loc['10dot1513']['bleach'].pop(4) # cell fluorescence goes up
 
+plt.figure()
+
+i=1
+# plot mean +/- std for each sensor
+for index, row in df_plt.iterrows():
+    
+    ax = plt.subplot(4,4,i)
+    i+=1
+    bleach_nd = np.array(row['bleach']) # convert to 2d np array
+    bleach_mean = np.mean(bleach_nd, axis = 0)
+    bleach_std = np.std(bleach_nd, axis = 0)
+    # _,ax= plt.subplots()
+    plt.fill_between(t, bleach_mean+bleach_std, bleach_mean-bleach_std, 
+                     facecolor="blue", # The fill color
+                     color='blue',       # The outline color
+                     alpha=0.2)          # Transparency of the fill)
+    ax.set_title(index)
+    # ax.set_xlabel('Time (s)')
+    # plt.tight_layout()
+    ax.set_ylim([0, 1.2])
+    
+plt.tight_layout()
