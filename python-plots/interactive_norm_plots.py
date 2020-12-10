@@ -29,15 +29,22 @@ pio.templates.default = "plotly_white"
 subplot_titles = ['peak dF/F', 'SNR (norm.)', 'half-rise time (norm.)', 'full rise time (norm.)', 'half-decay time (norm.)']
 fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=subplot_titles, x_title='number of action potentials') 
 
-plot_mat = loadmat(r'..\normPlots.mat')
+plot_mat = loadmat(r'..\normPlots_WEBSITE.mat')
 colorscheme = px.colors.qualitative.Alphabet # 0th: control
 
 nAPs = plot_mat['nAPs'][0]
 
+# labels and order of legend
+hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
+                'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
+
 all_norm_plots = plot_mat['normPlots_struct'][0]
 
-for i,c in enumerate(all_norm_plots):
-    construct_name = c['construct'][0]
+all_norm_plots_constructs = [c[0] for c in all_norm_plots['construct']]
+
+for i,construct_name in enumerate(hits_label): # enumerate(all_norm_plots):
+    # construct_name = c['construct'][0]
+    c = all_norm_plots[all_norm_plots_constructs.index(construct_name)]
     
     for j in range(1,n_subplots):
         x_plot = nAPs
