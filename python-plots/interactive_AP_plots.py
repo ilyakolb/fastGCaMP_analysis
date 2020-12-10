@@ -78,6 +78,7 @@ control_med_med_dff = plot_mat['plot_out'][0,0]['control_med_med_dff'] # [time x
 hits_med_med_dff = plot_mat['plot_out'][0,0]['hits_med_med_dff'] # [time x nStims x nHits]
 time = plot_mat['plot_out'][0,0]['time'][0] # time vector
 hits = plot_mat['plot_out'][0,0]['hits'] # array of hit name strings
+hits = [h[0] for h in hits[0]]
 control = plot_mat['plot_out'][0,0]['control'][0] # control name string
 hits_med_med_dff_sterr =  plot_mat['plot_out'][0,0]['hits_med_med_dff_sterr']
 control_med_med_dff_sterr = plot_mat['plot_out'][0,0]['control_med_med_dff_sterr']
@@ -92,9 +93,17 @@ hits_med_med_dff = hits_med_med_dff[t_to_ignore_samples:-1*t_to_ignore_samples,]
 control_med_med_dff_sterr = control_med_med_dff_sterr[t_to_ignore_samples:-1*t_to_ignore_samples,]
 hits_med_med_dff_sterr = hits_med_med_dff_sterr[t_to_ignore_samples:-1*t_to_ignore_samples,]
 
+# mapping between construct IDs and names
+mapping = {'GCaMP6s': '10.641' , 'jGCaMP8f': '500.456', 'jGCaMP8m': '500.686', 'jGCaMP8s': '500.688','jGCaMP8.712': '500.712', 'GCaMP6f': '10.693', 'jGCaMP7f': '10.921', 'jGCaMP7s': '10.1473', 'jGCaMP7c': '10.1513', 'jGCaMP7b': '10.1561', 'XCaMP-Gf': '538.1', 'XCaMP-G': '538.2', 'XCaMP-Gf0': '538.3'} # [h[0] for h in hits[0]]
+
 control_label= 'GCaMP6s'
-hits_label = ['GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP8.712', 
-              'jGCaMP8.543', 'jGCaMP8.707', 'jGCaMP8.455', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
+# hits_label = ['GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP8.712', 
+#              'jGCaMP8.543', 'jGCaMP8.707', 'jGCaMP8.455', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
+
+# labels and order of legend
+hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
+                'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
+
 n_stims = control_med_med_dff.shape[1]
 n_hits = hits_med_med_dff.shape[2]
 
@@ -105,13 +114,16 @@ fig = make_subplots(rows=2, cols=2, subplot_titles=stim_names, x_title='Time (s)
 
 # cycle through stim number
 for i in range(n_stims):
-    
-    # plot control
-    add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], i+1, colorscheme[0], control_label)
-    
+
     # plot hits
-    for j in range(n_hits):
-        add_shaded_trace(time, hits_med_med_dff[:,i,j], hits_med_med_dff_sterr[:,i,j], i+1, colorscheme[j+1], hits_label[j])
+    for hit in hits_label: # for j in range(n_hits):
+        if hit == control_label:
+            # plot control
+            add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], i+1, colorscheme[0], control_label)
+        else:
+            hit_id = mapping.get(hit)
+            hit_idx = hits.index(hit_id)
+            add_shaded_trace(time, hits_med_med_dff[:,i,hit_idx], hits_med_med_dff_sterr[:,i,hit_idx], i+1, colorscheme[hit_idx+1], hit)
 
 fig.update_traces(mode='lines')
 fig.update_layout(hovermode="closest", #, width=800, height=400,
