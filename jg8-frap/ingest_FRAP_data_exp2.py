@@ -68,13 +68,13 @@ plateau_end_idx = 20 # was 10
 s_rate = 50 # DOUBLE-CHECK
 
 save_figs       = False
-save_data       = True
+save_data       = False
 normalize_roi   = True
-keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
+keep_figs_open  = True # True to keep all generated figures open. Memory errors if too many open
 
 bleachlaser_condition = 'stim405' # or 'stim488'
-solution_condition = 'regular' # 'regular' or 'iono'
-all_constructs = ['10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
+solution_condition = 'iono' # 'regular' or 'iono'
+all_constructs = ['10.641'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
 # all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
 
 
