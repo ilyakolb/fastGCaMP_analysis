@@ -59,24 +59,24 @@ def decode_filename(fname):
     
 
 plt.close('all')
+
+save_figs       = False
+save_data       = True
+normalize_roi   = True
+keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
+
+bleachlaser_condition = 'stim488' # 'stim405' or 'stim405'
+solution_condition = 'regular' # 'regular' or 'iono'
+all_constructs = ['604.2', '10.641'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
+# all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
+
 num_peaks_to_plot = 10 # 40 # 'all' to plot all
 length_to_plot = 200
-samples_pre_stim = 10 # was 10
+samples_pre_stim = 10 if bleachlaser_condition == 'stim405' else 20
 peak_thresh = 20000
 plateau_start_idx = 100
 plateau_end_idx = 20 # was 10
 s_rate = 50 # DOUBLE-CHECK
-
-save_figs       = False
-save_data       = False
-normalize_roi   = True
-keep_figs_open  = True # True to keep all generated figures open. Memory errors if too many open
-
-bleachlaser_condition = 'stim405' # or 'stim488'
-solution_condition = 'iono' # 'regular' or 'iono'
-all_constructs = ['10.641'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
-# all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
-
 
 # directory of combined data
 combo_dir = r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\combined' 
@@ -125,7 +125,7 @@ for csv_filename in csv_filenames:
     
     # adjust peak indices to find rightmost peak
     for i,_ in enumerate(idx_peaks):
-        idx_peaks[i] += np.where(roi1[idx_peaks[i]:idx_peaks[i] +10] > peak_thresh)[0][-1]
+        idx_peaks[i] += np.where(roi1[idx_peaks[i]:idx_peaks[i] +20] > peak_thresh)[0][-1]
     
     num_stims = len(idx_peaks)
     

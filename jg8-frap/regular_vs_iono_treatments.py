@@ -14,6 +14,17 @@ def load_pkl(name):
 def get_mean_std(trace):
     return (np.mean(trace, axis=0), np.std(trace, axis=0))
 
+def get_trace_to_plot(trace_array):
+    (traces_mean, traces_std) = get_mean_std(trace_array)
+    
+    # plot from lowest point to end
+    min_point_idx = traces_mean.argmin()
+    traces_mean = traces_mean[min_point_idx:]
+    traces_std = traces_std[min_point_idx:]
+    t = np.arange(len(traces_mean))/s_rate
+    return(traces_mean, traces_std, t)
+
+
 plt.close('all')
 traces_regular = load_pkl(r'./analysis/roi_traces_norm_regular_405.pkl')
 traces_iono = load_pkl(r'./analysis/roi_traces_norm_iono_405.pkl')
@@ -36,11 +47,11 @@ for construct in all_constructs:
     plt.subplot(2,1,1)
     t = np.arange(traces_regular_construct[0].shape[0])/s_rate
     plt.legend(['regular', 'iono'])
-    (reg_mean, reg_std) = get_mean_std(traces_regular_construct)
+    (reg_mean, reg_std, t) = get_trace_to_plot(traces_regular_construct)
     plt.plot(t, reg_mean, colors[0])
     plt.fill_between(t, reg_mean + reg_std, reg_mean - reg_std, facecolor=colors[0], color=colors[0], alpha=0.2)
     
-    (iono_mean, iono_std) = get_mean_std(traces_iono_construct)
+    (iono_mean, iono_std, t) = get_trace_to_plot(traces_iono_construct)
     plt.plot(t, iono_mean, colors[1])
     plt.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
     
