@@ -73,8 +73,8 @@ normalize_roi   = True
 keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
 bleachlaser_condition = 'stim405' # or 'stim488'
-solution_condition = 'regular' # or 'iono'
-all_constructs = ['604.2', '10.641']# [ '10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
+solution_condition = 'regular' # 'regular' or 'iono'
+all_constructs = ['10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
 # all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
 
 
@@ -86,11 +86,11 @@ findmatches = lambda x: any([1 for c in all_constructs if c in x]) and solution_
 
 csv_filenames = list(filter(findmatches, csv_filenames_all))
 
+print('Evaluating')
+[print(p) for p in csv_filenames]
 
 plateau_data = {} # dict for storing all plateau data
 all_roi_avg_data = {} # 
-
-exp_folder = 'exp3_20201211'# 'exp3_20201211'
 
 # for construct in all_constructs:
 
