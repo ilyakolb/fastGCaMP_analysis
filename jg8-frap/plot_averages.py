@@ -8,7 +8,7 @@ avg = np.load(r'./analysis/all_roi_avg_data_norm.pkl', allow_pickle=True)
 s_rate = 37.037
 
 plt.close('all')
-colors = ['gray', 'red', 'blue']
+colors = ['gray', 'red', 'blue', 'cyan']
 for i,construct in enumerate(avg.keys()):
     avg_to_plot = avg[construct]
     t_combo = np.arange(0,len(avg_to_plot[0]))/s_rate
