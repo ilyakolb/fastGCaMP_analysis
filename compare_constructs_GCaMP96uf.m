@@ -123,10 +123,7 @@ if isempty(whos('mutant'))
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE
     load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20201131_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % best performers + xcamps + 7 series
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
-    
+        
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
     % used for F0 calculations
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')

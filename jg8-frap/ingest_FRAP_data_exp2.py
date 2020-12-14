@@ -5,7 +5,7 @@ Created on Wed Sep 30 12:59:13 2020
 @author: kolbi
 
 NOTES:
-    Second FRAP experiment (12/10/20)
+    combo analysis of FRAP experiments
     
 USAGE:
     env: conda activate base2
@@ -65,9 +65,9 @@ save_data       = True
 normalize_roi   = True
 keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
-bleachlaser_condition = 'stim488' # 'stim405' or 'stim405'
-solution_condition = 'regular' # 'regular' or 'iono'
-all_constructs = ['604.2', '10.641'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
+bleachlaser_condition = 'stim405' # 'stim405' or 'stim405'
+solution_condition = 'iono' # 'regular' or 'iono'
+all_constructs = ['604.2', '10.641', '500.688','500.686'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
 # all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
 
 num_peaks_to_plot = 10 # 40 # 'all' to plot all

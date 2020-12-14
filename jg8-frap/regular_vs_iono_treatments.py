@@ -32,13 +32,21 @@ traces_iono = load_pkl(r'./analysis/roi_traces_norm_iono_405.pkl')
 percents_regular = load_pkl(r'./analysis/plateau_data_norm_regular_405.pkl')
 percents_iono = load_pkl(r'./analysis/plateau_data_norm_iono_405.pkl')
 
+# load 488-bleached data
+traces_regular_488 = load_pkl(r'./analysis/roi_traces_norm_regular_488.pkl')
+percents_regular_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488.pkl')
+
 s_rate = 50
 
 all_constructs = ['10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
 
 for construct in all_constructs:
     
-    traces_regular_construct = traces_regular[construct]
+    if construct == '604.2': # if fungal GCaMP, use 488 data
+        traces_regular_construct = traces_regular_488[construct]
+    else:
+        traces_regular_construct = traces_regular[construct]
+    
     traces_iono_construct = traces_iono[construct]
     
     colors = ['gray', 'red']
@@ -56,7 +64,7 @@ for construct in all_constructs:
     plt.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
     
     plt.plot(t, np.zeros_like(t), 'k--')
-    plt.legend(['regular', 'iono'])
+    plt.legend(['regular (488 bleach)' if construct == '604.2' else 'regular', 'iono'])
     plt.show()
     plt.ylim([-0.4, 0.4])
     plt.title(construct)

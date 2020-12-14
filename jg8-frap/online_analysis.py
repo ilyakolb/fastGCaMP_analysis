@@ -45,13 +45,13 @@ normalize_roi   = True
 keep_figs_open  = True # True to keep all generated figures open. Memory errors if too many open
 
 all_constructs = ['604.2']# [ '10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
-all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
+all_cell_num = ['007']# ['001', '002', '003', '004', '005']
 
 
 plateau_data = {} # dict for storing all plateau data
 all_roi_avg_data = {} # 
 
-exp_folder = 'exp3_20201211'# 'exp3_20201211'
+exp_folder = 'exp4_20201213'# 'exp3_20201211'
 for construct in all_constructs:
     
     plateau_data[construct] = []
