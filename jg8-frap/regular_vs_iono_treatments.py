@@ -25,7 +25,7 @@ def get_trace_to_plot(trace_array):
     return(traces_mean, traces_std, t)
 
 
-plt.close('all')
+# plt.close('all')
 traces_regular = load_pkl(r'./analysis/roi_traces_norm_regular_405.pkl')
 traces_iono = load_pkl(r'./analysis/roi_traces_norm_iono_405.pkl')
 
