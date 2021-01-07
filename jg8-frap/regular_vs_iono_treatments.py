@@ -6,6 +6,7 @@ import pickle
 # plot average FRAP traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
 
+# plt.close('all')
 
 def load_pkl(name):
     with open(name, 'rb') as f:
@@ -16,13 +17,21 @@ def get_mean_std(trace):
 
 def get_trace_to_plot(trace_array):
     (traces_mean, traces_std) = get_mean_std(trace_array)
-    
-    # plot from lowest point to end
     min_point_idx = traces_mean.argmin()
-    traces_mean = traces_mean[min_point_idx:]
-    traces_std = traces_std[min_point_idx:]
-    t = np.arange(len(traces_mean))/s_rate
-    return(traces_mean, traces_std, t)
+    
+    trace_array_cutoff = trace_array[:,min_point_idx:]
+    trace_array_norm = np.zeros_like(trace_array_cutoff)
+    for i,t in enumerate(trace_array_cutoff):
+        t = t-t[0]
+        t_fin = np.mean(t[-5:])
+        
+        # stretch trace to fit between 0 and 1
+        trace_array_norm[i,:] =  t # np.interp(t, (0, t_fin), (0, 1))
+
+
+    (traces_norm_mean, traces_norm_std) = get_mean_std(trace_array_norm)
+    t = np.arange(len(traces_norm_mean))/s_rate
+    return(traces_norm_mean, traces_norm_std, t)
 
 
 # plt.close('all')
@@ -55,18 +64,18 @@ for construct in all_constructs:
     plt.subplot(2,1,1)
     t = np.arange(traces_regular_construct[0].shape[0])/s_rate
     plt.legend(['regular', 'iono'])
-    (reg_mean, reg_std, t) = get_trace_to_plot(traces_regular_construct)
+    (reg_mean, reg_std, t) = get_trace_to_plot(np.array(traces_regular_construct))
     plt.plot(t, reg_mean, colors[0])
     plt.fill_between(t, reg_mean + reg_std, reg_mean - reg_std, facecolor=colors[0], color=colors[0], alpha=0.2)
     
-    (iono_mean, iono_std, t) = get_trace_to_plot(traces_iono_construct)
+    (iono_mean, iono_std, t) = get_trace_to_plot(np.array(traces_iono_construct))
     plt.plot(t, iono_mean, colors[1])
     plt.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
     
     plt.plot(t, np.zeros_like(t), 'k--')
     plt.legend(['regular (488 bleach)' if construct == '604.2' else 'regular', 'iono'])
     plt.show()
-    plt.ylim([-0.4, 0.4])
+    # plt.ylim([-0.4, 0.4])
     plt.title(construct)
     plt.xlabel('Time (s)')
     
