@@ -14,7 +14,13 @@ def load_pkl(name):
 
 def get_mean_std(trace):
     return (np.mean(trace, axis=0), np.std(trace, axis=0))
-    
+
+
+def rescale(_trace, _max):
+    # _trace = _trace+1
+    _t = _trace * 1/(_max-np.min(_trace))
+    return _t - _t[0]# - np.min(_t)
+
 def get_trace_to_plot(trace_array, name):
     '''
 
@@ -34,30 +40,36 @@ def get_trace_to_plot(trace_array, name):
     # find min point of trace array
     (traces_mean, traces_std) = get_mean_std(trace_array)
     min_point_idx = traces_mean.argmin()
-    
+    print(min_point_idx)
     trace_array_cutoff = trace_array[:,min_point_idx:]
     trace_array_norm = np.zeros_like(trace_array_cutoff)
     for i,t in enumerate(trace_array_cutoff):
-        t = t-t[0]
-        t_fin = np.mean(t[-5:])
-        
+        # t = t-t[0]
+        prev_mean = 0# np.mean(t[:2])
         # stretch trace to fit between 0 and 1
-        trace_array_norm[i,:] = np.interp(t, (0, t_fin), (0, 1))
+        trace_array_norm[i,:] = rescale(t, prev_mean)# np.interp(t, (0, prev_mean), (0, 1))
+        # set baseline to 0 only
+        # trace_array_norm[i,:] = t
     
     # plot from lowest point to end
     (traces_norm_mean, traces_norm_std) = get_mean_std(trace_array_norm)
     t = np.arange(len(traces_norm_mean))/s_rate
     
     pd.DataFrame(trace_array_norm.T).to_csv(r'./analysis/normalized-csvs/' + name + '.csv')
+    # print(trace_array_norm[:,0])
     return(traces_norm_mean, traces_norm_std, t)
     
+one_peak = True # load single-peak only (for FRAP curve)
+
+peak_str = '_1peak' if one_peak else ''
+
 # load 405-bleached data
-traces_405 = load_pkl(r'./analysis/roi_traces_norm_regular_405.pkl')
-percents_405 = load_pkl(r'./analysis/plateau_data_norm_regular_405.pkl')
+traces_405 = load_pkl(r'./analysis/roi_traces_norm_regular_405' + peak_str + '.pkl')
+percents_405 = load_pkl(r'./analysis/plateau_data_norm_regular_405' + peak_str + '.pkl')
 
 # load 488-bleached data
-traces_488 = load_pkl(r'./analysis/roi_traces_norm_regular_488.pkl')
-percents_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488.pkl')
+traces_488 = load_pkl(r'./analysis/roi_traces_norm_regular_488' + peak_str + '.pkl')
+percents_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488' + peak_str + '.pkl')
 
 s_rate = 50
 
@@ -97,9 +109,9 @@ axs[1].errorbar(x-n_constructs/1000+(i+1)/500, 100*percent_mean, 100*percent_std
 
 construct_legend.append('604.2 (488 bleach)')
 
-# 0 lines
-axs[0].plot(t, np.zeros_like(t), 'k--')
-axs[1].plot(x, np.zeros_like(x), 'k--')
+# 1 lines
+axs[0].plot(t, np.ones_like(t), 'k--')
+axs[1].plot(x, np.ones_like(x), 'k--')
 
 
 axs[0].set_xlabel('time (s)')

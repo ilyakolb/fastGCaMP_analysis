@@ -61,16 +61,16 @@ def decode_filename(fname):
 plt.close('all')
 
 save_figs       = False
-save_data       = True
+save_data       = False
 normalize_roi   = True
-keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
+keep_figs_open  = True # True to keep all generated figures open. Memory errors if too many open
 
-bleachlaser_condition = 'stim405' # 'stim405' or 'stim405'
-solution_condition = 'iono' # 'regular' or 'iono'
-all_constructs = ['604.2', '10.641', '500.688','500.686'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
+bleachlaser_condition = 'stim488' # 'stim405' or 'stim488'
+solution_condition = 'regular' # 'regular' or 'iono'
+all_constructs =  ['604.2']# ['604.2', '10.641', '500.688','500.686']# ['604.2', '10.641', '500.688','500.686'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
 # all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
 
-num_peaks_to_plot = 10 # 40 # 'all' to plot all
+num_peaks_to_plot = 1 # or 10 peaks for FULL
 length_to_plot = 200
 samples_pre_stim = 10 if bleachlaser_condition == 'stim405' else 20
 peak_thresh = 20000
@@ -121,8 +121,9 @@ for csv_filename in csv_filenames:
     
     print('total number of stims: {}'.format(len(idx_peaks)))
     if num_peaks_to_plot != 'all':
-        idx_peaks = idx_peaks[:num_peaks_to_plot]
-    
+        # idx_peaks_additional needed for plateau calculation
+        idx_peaks, idx_peaks_additional = (idx_peaks[:num_peaks_to_plot], idx_peaks[:num_peaks_to_plot+1])
+            
     # adjust peak indices to find rightmost peak
     for i,_ in enumerate(idx_peaks):
         idx_peaks[i] += np.where(roi1[idx_peaks[i]:idx_peaks[i] +20] > peak_thresh)[0][-1]
@@ -140,9 +141,9 @@ for csv_filename in csv_filenames:
     plateau_t = lambda idx: t[idx-plateau_start_idx:idx-plateau_end_idx]
     
     # change in plateaus over time
-    plateaus_roi1 = [plateau(i, roi1).mean() for i in idx_peaks] # plateaus from roi 2 (FRAP zone)
-    plateaus_roi2 = [plateau(i, roi2).mean() for i in idx_peaks] # plateaus from roi 2 (FRAP zone)
-    plateaus_roi3 = [plateau(i, roi3).mean() for i in idx_peaks] # plateaus from roi 3 (non-FRAP zone in same cell)
+    plateaus_roi1 = [plateau(i, roi1).mean() for i in idx_peaks_additional] # plateaus from roi 2 (FRAP zone)
+    plateaus_roi2 = [plateau(i, roi2).mean() for i in idx_peaks_additional] # plateaus from roi 2 (FRAP zone)
+    plateaus_roi3 = [plateau(i, roi3).mean() for i in idx_peaks_additional] # plateaus from roi 3 (non-FRAP zone in same cell)
     # plateaus_roi4 = [plateau(i, roi4).mean() for i in idx_peaks] # plateaus from roi 2 (FRAP zone)
     
     # plot stim-triggered averages
@@ -191,7 +192,7 @@ for csv_filename in csv_filenames:
             
     # percent change in plateaus (next plateau - current plateau ) / current plateau
     percent_change = np.diff(plateaus_roi2) / plateaus_roi2[0:-1]
-    
+    print(percent_change)
     if construct not in plateau_data:
         plateau_data[construct] = []
     plateau_data[construct].append(percent_change)
@@ -229,11 +230,11 @@ for csv_filename in csv_filenames:
 
 if save_data:
     
-    plateau_name = 'plateau_data_{}_{}_{}'.format('norm' if normalize_roi else '', solution_condition, stim_laser)
+    plateau_name = 'plateau_data_{}_{}_{}_{}peak'.format('norm' if normalize_roi else '', solution_condition, stim_laser, num_peaks_to_plot)
     with open(r'./analysis/'+ plateau_name + '.pkl', 'wb') as f:
         pickle.dump(plateau_data, f, pickle.HIGHEST_PROTOCOL)
     
-    roi_traces_name = 'roi_traces_{}_{}_{}'.format('norm' if normalize_roi else '', solution_condition, stim_laser)
+    roi_traces_name = 'roi_traces_{}_{}_{}_{}peak'.format('norm' if normalize_roi else '', solution_condition, stim_laser, num_peaks_to_plot)
     with open(r'./analysis/'+ roi_traces_name + '.pkl', 'wb') as f:
         pickle.dump(all_roi_avg_data, f, pickle.HIGHEST_PROTOCOL)
     
