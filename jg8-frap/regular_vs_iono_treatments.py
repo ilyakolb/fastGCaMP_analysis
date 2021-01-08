@@ -6,7 +6,7 @@ import pickle
 # plot average FRAP traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
 
-# plt.close('all')
+plt.close('all')
 
 def load_pkl(name):
     with open(name, 'rb') as f:
@@ -15,35 +15,42 @@ def load_pkl(name):
 def get_mean_std(trace):
     return (np.mean(trace, axis=0), np.std(trace, axis=0))
 
+def rescale(_trace, _max):
+    # _trace = _trace+1
+    _t = _trace * 1/(_max-np.min(_trace))
+    return _t - _t[0]# - np.min(_t)
+
 def get_trace_to_plot(trace_array):
     (traces_mean, traces_std) = get_mean_std(trace_array)
     min_point_idx = traces_mean.argmin()
     
     trace_array_cutoff = trace_array[:,min_point_idx:]
     trace_array_norm = np.zeros_like(trace_array_cutoff)
+    
+    
     for i,t in enumerate(trace_array_cutoff):
-        t = t-t[0]
-        t_fin = np.mean(t[-5:])
-        
+        prev_mean = np.mean(trace_array[i,:3])# t[0]# np.mean(t[0])
         # stretch trace to fit between 0 and 1
-        trace_array_norm[i,:] =  t # np.interp(t, (0, t_fin), (0, 1))
+        trace_array_norm[i,:] = rescale(t, prev_mean)# np.interp(t, (0, prev_mean), (0, 1))
+
 
 
     (traces_norm_mean, traces_norm_std) = get_mean_std(trace_array_norm)
     t = np.arange(len(traces_norm_mean))/s_rate
     return(traces_norm_mean, traces_norm_std, t)
 
+one_peak = True
+peak_str = '_1peak' if one_peak else ''
 
-# plt.close('all')
-traces_regular = load_pkl(r'./analysis/roi_traces_norm_regular_405.pkl')
-traces_iono = load_pkl(r'./analysis/roi_traces_norm_iono_405.pkl')
+traces_regular = load_pkl(r'./analysis/roi_traces_norm_regular_405' + peak_str + '.pkl')
+traces_iono = load_pkl(r'./analysis/roi_traces_norm_iono_405' + peak_str + '.pkl')
 
-percents_regular = load_pkl(r'./analysis/plateau_data_norm_regular_405.pkl')
-percents_iono = load_pkl(r'./analysis/plateau_data_norm_iono_405.pkl')
+percents_regular = load_pkl(r'./analysis/plateau_data_norm_regular_405' + peak_str + '.pkl')
+percents_iono = load_pkl(r'./analysis/plateau_data_norm_iono_405' + peak_str + '.pkl')
 
 # load 488-bleached data
-traces_regular_488 = load_pkl(r'./analysis/roi_traces_norm_regular_488.pkl')
-percents_regular_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488.pkl')
+traces_regular_488 = load_pkl(r'./analysis/roi_traces_norm_regular_488' + peak_str + '.pkl')
+percents_regular_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488' + peak_str + '.pkl')
 
 s_rate = 50
 
@@ -72,7 +79,7 @@ for construct in all_constructs:
     plt.plot(t, iono_mean, colors[1])
     plt.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
     
-    plt.plot(t, np.zeros_like(t), 'k--')
+    plt.plot(t, np.ones_like(t), 'k--')
     plt.legend(['regular (488 bleach)' if construct == '604.2' else 'regular', 'iono'])
     plt.show()
     # plt.ylim([-0.4, 0.4])

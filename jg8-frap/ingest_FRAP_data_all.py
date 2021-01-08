@@ -10,8 +10,23 @@ NOTES:
 USAGE:
     env: conda activate base2
     run from D:\pythonTesting\jg8-frap
-    For un-normalized, plot N=20 pulses to get fraction change plot
-    For normalized, plot N=5 pulses to get uncontaminated curves
+    Obtain data for plot_average_2.py and regular_vs_iono_treatments.py:
+        
+        --- all 405-stimmed constructs
+        bleachlaser_condition = 'stim405'
+        solution_condition = 'regular'
+        all_constructs =   ['604.2', '10.641', '500.688','500.686']
+        
+        --- all 488-stimmed constructs
+        bleachlaser_condition = 'stim405'
+        solution_condition = 'regular'
+        all_constructs =   ['604.2', '10.641']
+               
+        --- all 405-stimmed iono constructs
+        bleachlaser_condition = 'stim405' # 'stim405' or 'stim488'
+        solution_condition = 'iono' # 'regular' or 'iono'
+        all_constructs =   ['604.2', '10.641', '500.688','500.686']
+
     
 NOTES:
         # roi1: frap pixel
@@ -20,7 +35,7 @@ NOTES:
         # roi4: neighboring cell roi <<< NOT PRESENT IN second experiment
         
         # @todo: check sampling rate
-        
+
 @todo: inspect video where resistant fraction is visible?
 
 """
@@ -30,6 +45,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 import os, pickle
+
+def rescale(_trace, _max):
+    # rescale so that _max value (plateau) = 1 and min value of trace = 0
+    _t = _trace * 1/(_max-np.min(_trace))
+    return _t - _t[0] + 1
 
 def decode_filename(fname):
     '''
@@ -60,19 +80,20 @@ def decode_filename(fname):
 
 plt.close('all')
 
-save_figs       = False
+save_figs       = True
 save_data       = True
 normalize_roi   = True
 keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
-bleachlaser_condition = 'stim405' # 'stim405' or 'stim488'
+bleachlaser_condition = 'stim488' # 'stim405' or 'stim488'
 solution_condition = 'regular' # 'regular' or 'iono'
-all_constructs =  ['604.2', '10.641', '500.688','500.686']# ['604.2', '10.641']#  ['604.2', '10.641', '500.688','500.686']# ['604.2', '10.641', '500.688','500.686'] #, '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
-# all_cell_num = ['001.iono']# ['001', '002', '003', '004', '005']
+
+# ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
+all_constructs =  ['604.2', '10.641']
 
 num_peaks_to_plot = 1 # or 10 peaks for FULL
 length_to_plot = 400
-samples_pre_stim = 10 if bleachlaser_condition == 'stim405' else 20
+samples_pre_stim = 20 if bleachlaser_condition == 'stim405' else 30
 peak_thresh = 20000
 plateau_start_idx = 100
 plateau_end_idx = 20 # was 10
@@ -121,8 +142,8 @@ for csv_filename in csv_filenames:
     
     print('total number of stims: {}'.format(len(idx_peaks)))
     if num_peaks_to_plot != 'all':
-        # idx_peaks_additional needed for plateau calculation
-        idx_peaks, idx_peaks_additional = (idx_peaks[:num_peaks_to_plot], idx_peaks[:num_peaks_to_plot+1])
+
+        idx_peaks = idx_peaks[:num_peaks_to_plot]
             
     # adjust peak indices to find rightmost peak
     for i,_ in enumerate(idx_peaks):
@@ -141,20 +162,22 @@ for csv_filename in csv_filenames:
     plateau_t = lambda idx: t[idx-plateau_start_idx:idx-plateau_end_idx]
     
     # change in plateaus over time
-    plateaus_roi1 = [plateau(i, roi1).mean() for i in idx_peaks_additional] # plateaus from roi 2 (FRAP zone)
-    plateaus_roi2 = [plateau(i, roi2).mean() for i in idx_peaks_additional] # plateaus from roi 2 (FRAP zone)
-    plateaus_roi3 = [plateau(i, roi3).mean() for i in idx_peaks_additional] # plateaus from roi 3 (non-FRAP zone in same cell)
+    plateaus_roi1 = [plateau(i, roi1).mean() for i in idx_peaks] # plateaus from roi 2 (FRAP zone)
+    plateaus_roi2 = [plateau(i, roi2).mean() for i in idx_peaks] # plateaus from roi 2 (FRAP zone)
+    plateaus_roi3 = [plateau(i, roi3).mean() for i in idx_peaks] # plateaus from roi 3 (non-FRAP zone in same cell)
     # plateaus_roi4 = [plateau(i, roi4).mean() for i in idx_peaks] # plateaus from roi 2 (FRAP zone)
     
     # plot stim-triggered averages
-    fig_stimavg, ax = plt.subplots(1,4, sharex='all', sharey='all')
+    fig_stimavg, ax = plt.subplots(1,1)
     fig.set_figwidth(8)
+    percent_change = np.zeros(num_stims)
     for i,roi in enumerate(all_rois):
     
         
         t_combo = np.arange(-1*samples_pre_stim, length_to_plot)/s_rate
         # print(t_combo)
         roi_avg = np.zeros_like(t_combo)
+        
         for j in range(num_stims):
             start_idx = idx_peaks[j]
             current_roi = roi[start_idx + np.arange(-1*samples_pre_stim,length_to_plot)]
@@ -162,36 +185,36 @@ for csv_filename in csv_filenames:
             if i == 0:
                 current_roi = current_roi - plateaus_roi1[j]
             elif i == 1:
-                current_roi = current_roi - plateaus_roi2[j]
+                current_roi = rescale(current_roi, np.mean(current_roi[:5]))
             elif i == 2:
                 current_roi = current_roi - plateaus_roi3[j]
 #                elif i == 3:
 #                    current_roi = current_roi - plateaus_roi4[j]
             roi_avg += current_roi
-            ax[i].plot(t_combo, current_roi, 'gray')
+
+            
         
         roi_avg = roi_avg/(j+1)
-        ax[i].plot(t_combo, np.zeros_like(t_combo), 'k--')
-        ax[i].plot(t_combo, roi_avg, 'r-')
-        ax[i].set_title('roi ' + str(i+1))
         
+        if i == 1:
+            ax.plot(t_combo, np.zeros_like(t_combo), 'k--')
+            ax.plot(t_combo, roi_avg, 'r-')
+            ax.set_title('roi ' + str(i+1))
+            ax.set_ylim([-0.5, 1.5])
         if i == 1: # roi 2 only (FRAP point)
             if construct not in all_roi_avg_data.keys():
                 all_roi_avg_data[construct] = []
             all_roi_avg_data[construct].append(roi_avg)
-        
-        if normalize_roi:
-            ax[i].set_ylim([-1.5, 1])
-        else:
-            ax[i].set_ylim([-1000, 500])
-    
+            percent_change[j] = (np.mean(current_roi[-1*plateau_end_idx:]) - plateaus_roi2[j])/plateaus_roi2[j]
+            print(percent_change)
+
     # plot plateaus on entire timeseries and save (roi2 only)
     for i in idx_peaks:
         current_plateau = plateau(i, roi2)
         raw_ax.plot(plateau_t(i), current_plateau, 'k-')
             
     # percent change in plateaus (next plateau - current plateau ) / current plateau
-    percent_change = np.diff(plateaus_roi2) / plateaus_roi2[0:-1]
+    # percent_change = np.diff(plateaus_roi2) / plateaus_roi2[0:-1]
     if construct not in plateau_data:
         plateau_data[construct] = []
     plateau_data[construct].append(percent_change)
@@ -219,6 +242,8 @@ for csv_filename in csv_filenames:
     if save_figs:
         # save plots
         fig_stimavg.savefig(os.path.join('./analysis', folder_name, csv_filename.replace('.csv', '.png')))
+        fig_stimavg.savefig(os.path.join('./analysis', folder_name, csv_filename.replace('.csv', '.pdf')))
+        
         # fig_prcnt_chng.savefig(os.path.join('./analysis', folder_name, 'percent_change_' + csv_filename.replace('.csv', '.png')))
         # fig_plateaus.savefig(os.path.join('./analysis', folder_name, 'plateaus_' + csv_filename.replace('.csv', '.png')))
     
