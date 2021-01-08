@@ -89,7 +89,7 @@ plt.close('all')
 colors = ['gray', 'red', 'blue', 'cyan', 'green']
 construct_legend = []
 percent_fig, axs = plt.subplots(2,1)
-
+percent_fig.set_size_inches([5.62, 6.85])
 # remove 604.2 (405 stim) from traces_405
 traces_405.pop('604.2')
 
@@ -132,31 +132,32 @@ axs[0].set_xlabel('Time (s)')
 plt.tight_layout()
 percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
 
-'''
-axs[0].set_xlabel('time (s)')
-axs[0].set_ylabel('F (norm.)')
-axs[1].set_xlabel('stim number')
-axs[1].set_ylabel('Percent change (norm.)')
 axs[0].legend(construct_legend)
 
 
 ### 405 vs 488 comparison of 10.641
-_, axs = plt.subplots(2,1)
+f, axs = plt.subplots(2,1)
+f.set_size_inches([4.99, 6.56])
 
 (mean, std, t) = get_trace_to_plot(np.array(traces_405['10.641']), '10.641')
 (percent_mean_405, percent_std_405) = get_mean_std(np.array(percents_405['10.641']))
 axs[0].plot(t, mean, color = 'darkviolet')
 axs[0].fill_between(t, mean + std, mean - std, facecolor='darkviolet', color='darkviolet', alpha=0.2)
-axs[1].errorbar(x-n_constructs/1000+(i+1)/500, 100*percent_mean_405, 100*percent_std_405, color='darkviolet', capsize=5, marker='o')
+axs[1].bar(0, 100+100*percent_mean_405, yerr=100*percent_std_405, color='darkviolet')
+construct_legend = ['10.641 (405 bleach) (n={})'.format(len(percent_std_405))]
 
 (mean, std, t) = get_trace_to_plot(np.array(traces_488['10.641']), '10.641_488stim')
 (percent_mean_488, percent_std_488) = get_mean_std(np.array(percents_488['10.641']))
 axs[0].plot(t, mean, color = 'cyan')
 axs[0].fill_between(t, mean + std, mean - std, facecolor='cyan', color='cyan', alpha=0.2)
-# axs[0].set_ylim([-0.4, 0.4])
-
-
-axs[1].errorbar(x-n_constructs/1000+(i+1)/500, 100*percent_mean_488, 100*percent_std_488, color='cyan', capsize=5, marker='o')
-axs[0].legend(['10.641 (405 bleach)', '10.641 (488 bleach)'])
-'''
+axs[1].bar(1, 100+100*percent_mean_488, yerr=100*percent_std_488, color='cyan')
+axs[1].set_xticks([0,1])
+construct_legend = ['10.641 (405 bleach) (n={})'.format(len(traces_405['10.641'])), '10.641 (488 bleach) (n={})'.format(len(traces_488['10.641']))]
+axs[0].legend(construct_legend)
+axs[1].set_xticklabels(construct_legend)
+axs[0].set_ylabel('Recovery (%)')
+axs[0].set_xlabel('Time (s)')
+axs[1].set_ylabel('Recovery (%)')
+plt.tight_layout()
+f.savefig(os.path.join('./analysis/normalized', '405_vs_488_6s.pdf'))
 plt.show()

@@ -49,7 +49,7 @@ import os, pickle
 def rescale(_trace, _max):
     # rescale so that _max value (plateau) = 1 and min value of trace = 0
     _t = _trace * 1/(_max-np.min(_trace))
-    return _t - _t[0] + 1
+    return _t - np.min(_t)
 
 def decode_filename(fname):
     '''
@@ -86,10 +86,10 @@ normalize_roi   = True
 keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
 bleachlaser_condition = 'stim488' # 'stim405' or 'stim488'
-solution_condition = 'regular' # 'regular' or 'iono'
+solution_condition = 'iono' # 'regular' or 'iono'
 
 # ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
-all_constructs =  ['604.2', '10.641']
+all_constructs = ['604.2', '10.641', '500.688','500.686']
 
 num_peaks_to_plot = 1 # or 10 peaks for FULL
 length_to_plot = 400
@@ -185,7 +185,8 @@ for csv_filename in csv_filenames:
             if i == 0:
                 current_roi = current_roi - plateaus_roi1[j]
             elif i == 1:
-                current_roi = rescale(current_roi, np.mean(current_roi[:5]))
+                # current_roi = rescale(current_roi, np.mean(current_roi[:5]))
+                current_roi = rescale(current_roi, plateaus_roi2[j])
             elif i == 2:
                 current_roi = current_roi - plateaus_roi3[j]
 #                elif i == 3:

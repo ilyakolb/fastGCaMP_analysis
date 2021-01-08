@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pickle
-
+import pickle, os
+from scipy import stats
 
 # plot average FRAP traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
@@ -60,41 +60,57 @@ for construct in all_constructs:
     
     if construct == '604.2': # if fungal GCaMP, use 488 data
         traces_regular_construct = traces_regular_488[construct]
+        percents_regular_construct = percents_regular_488[construct]
+        
     else:
         traces_regular_construct = traces_regular[construct]
+        percents_regular_construct = percents_regular[construct]
+
     
     traces_iono_construct = traces_iono[construct]
+    percents_iono_construct = percents_iono[construct]
     
     colors = ['gray', 'red']
+    construct_legend = ['regular (488 bleach)' if construct == '604.2' else 'regular', 'iono']
     
-    plt.figure()
-    plt.subplot(2,1,1)
+    construct_legend[0] += (' (n={})'.format(len(percents_regular_construct)))
+    construct_legend[1] += (' (n={})'.format(len(percents_iono_construct)))
+    
+    f = plt.figure(figsize = [4.99, 6.56])
+    f.suptitle(construct)
+    ax1 = plt.subplot(2,1,1)
     t = np.arange(traces_regular_construct[0].shape[0])/s_rate
-    plt.legend(['regular', 'iono'])
     (reg_mean, reg_std, t) = get_trace_to_plot(np.array(traces_regular_construct))
-    plt.plot(t, reg_mean, colors[0])
-    plt.fill_between(t, reg_mean + reg_std, reg_mean - reg_std, facecolor=colors[0], color=colors[0], alpha=0.2)
+    ax1.plot(t, reg_mean, colors[0])
+    ax1.fill_between(t, reg_mean + reg_std, reg_mean - reg_std, facecolor=colors[0], color=colors[0], alpha=0.2)
     
     (iono_mean, iono_std, t) = get_trace_to_plot(np.array(traces_iono_construct))
-    plt.plot(t, iono_mean, colors[1])
-    plt.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
+    ax1.plot(t, iono_mean, colors[1])
+    ax1.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
     
-    plt.plot(t, np.ones_like(t), 'k--')
-    plt.legend(['regular (488 bleach)' if construct == '604.2' else 'regular', 'iono'])
-    plt.show()
+    ax1.plot(t, np.ones_like(t), 'k--')
+    ax1.legend(construct_legend)
     # plt.ylim([-0.4, 0.4])
-    plt.title(construct)
-    plt.xlabel('Time (s)')
+    ax1.set_xlabel('Time (s)')
+    
     
     # percent change plot
-    percents_regular_construct = percents_regular[construct]
-    percents_iono_construct = percents_iono[construct]
-    plt.subplot(2,1,2)
+    
+    ax2 = plt.subplot(2,1,2)
     x = np.arange(1,percents_regular_construct[0].shape[0]+1)
-    (percent_reg_mean, percent_reg_std) = get_mean_std(np.array(percents_regular_construct))
-    (percent_iono_mean, percent_iono_std) = get_mean_std(np.array(percents_iono_construct))
-    plt.errorbar(x, 100*percent_reg_mean, 100*percent_reg_std, color=colors[0])
-    plt.errorbar(x, 100*percent_iono_mean, 100*percent_iono_std, color=colors[1])
-    plt.legend(['regular', 'iono'])
-    plt.xlabel('stim number')
-    plt.ylabel('Percent change (norm.)')
+    percents_regular_single_construct  = np.array(percents_regular_construct)
+    percents_iono_single_construct = np.array(percents_iono_construct)
+    (_,pval) = stats.ttest_ind(percents_regular_single_construct, percents_iono_single_construct, equal_var = False)
+    print(construct + ': regular vs iono: p = ' + str(pval))
+    (percent_reg_mean, percent_reg_std) = get_mean_std(percents_regular_single_construct)
+    (percent_iono_mean, percent_iono_std) = get_mean_std(percents_iono_single_construct)
+    ax2.bar(0, 100+100*percent_reg_mean, yerr = 100*percent_reg_std, color='black')
+    ax2.bar(1, 100+100*percent_iono_mean, yerr = 100*percent_iono_std, color='black')
+    # plt.errorbar(x, 100*percent_reg_mean, 100*percent_reg_std, color=colors[0])
+    # plt.errorbar(x, 100*percent_iono_mean, 100*percent_iono_std, color=colors[1])
+    ax2.set_xticks([0,1])
+    ax2.set_xticklabels(construct_legend)
+    ax2.set_ylabel('Recovery (%)')
+    plt.tight_layout()
+    f.savefig(os.path.join('./analysis/normalized', 'iono_' + construct + '.pdf'))
+
