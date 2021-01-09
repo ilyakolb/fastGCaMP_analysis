@@ -25,19 +25,21 @@ def get_trace_to_plot(trace_array):
     min_point_idx = traces_mean.argmin()
     
     trace_array_cutoff = trace_array[:,min_point_idx:]
-    trace_array_norm = np.zeros_like(trace_array_cutoff)
+
+    (traces_norm_mean, traces_norm_std) = get_mean_std(trace_array_cutoff)
+    t = np.arange(len(traces_norm_mean))/s_rate
+    return(traces_norm_mean, traces_norm_std, t)
     
-    
-    for i,t in enumerate(trace_array_cutoff):
+    '''
+     trace_array_norm = np.zeros_like(trace_array_cutoff)
+     for i,t in enumerate(trace_array_cutoff):
         prev_mean = np.mean(trace_array[i,:3])# t[0]# np.mean(t[0])
         # stretch trace to fit between 0 and 1
         trace_array_norm[i,:] = rescale(t, prev_mean)# np.interp(t, (0, prev_mean), (0, 1))
+    '''
 
 
-
-    (traces_norm_mean, traces_norm_std) = get_mean_std(trace_array_norm)
-    t = np.arange(len(traces_norm_mean))/s_rate
-    return(traces_norm_mean, traces_norm_std, t)
+    
 
 one_peak = True
 peak_str = '_1peak' if one_peak else ''

@@ -85,7 +85,7 @@ percents_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488' + peak_str +
 s_rate = 50
 
 
-plt.close('all')
+# plt.close('all')
 colors = ['gray', 'red', 'blue', 'cyan', 'green']
 construct_legend = []
 percent_fig, axs = plt.subplots(2,1)
@@ -99,7 +99,7 @@ for i,construct in enumerate(traces_405.keys()):
 
     (mean, std, t) = get_trace_to_plot(traces_array, construct)
     
-    construct_legend.append(construct)
+    construct_legend.append(construct + '(n={})'.format(len(traces_array)))
     
     axs[0].plot(t, mean, colors[i])
     axs[0].fill_between(t, mean + std, mean - std, facecolor=colors[i], color=colors[i], alpha=0.2)
@@ -116,7 +116,7 @@ for i,construct in enumerate(traces_405.keys()):
 axs[0].plot(t, mean, colors[i+1])
 axs[0].fill_between(t, mean + std, mean - std, facecolor=colors[i+1], color=colors[i+1], alpha=0.2)
 axs[1].bar(i+1, 100+100*percent_mean, yerr = 100*percent_std, color='black')
-construct_legend.append('604.2 (488 bleach)')
+construct_legend.append('604.2 (488 bleach) (n={})'.format(len(percents_488['604.2'])))
 axs[0].set_ylabel('Recovery (%)')
 axs[1].set_ylabel('Recovery (%)')
 axs[1].set_xticks(np.arange(0,i+2))
@@ -128,11 +128,11 @@ axs[1].plot([0, i+1], [100,100], 'k--')
 
 axs[0].set_xlim([-0.2, 4])
 axs[0].set_xlabel('Time (s)')
-
+axs[0].legend(construct_legend)
 plt.tight_layout()
 percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
 
-axs[0].legend(construct_legend)
+
 
 
 ### 405 vs 488 comparison of 10.641
