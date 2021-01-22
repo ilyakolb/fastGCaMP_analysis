@@ -15,6 +15,10 @@ from plotly.subplots import make_subplots
 import plotly.express as px
 
 
+plot_subset_for_paper = 1 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
+html_write_dir = r'D:\site\ilyakolb.github.io\interactive_AP_traces.html'
+pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/AP_plots.pdf"
+
 def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_label):
     '''
     plot AP mean trace +/- s.e.m
@@ -69,7 +73,6 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
     ), row=(2 if stim_subplot_idx > 2 else 1),
     col=(1 if stim_subplot_idx%2 == 1 else 2),)
 
-html_write_dir = r'D:\site\ilyakolb.github.io\interactive_AP_traces.html'
 t_to_ignore_s = 0.5 # initial seconds to remove to get rid of bleaching artifacts
 pio.templates.default = "plotly_white"
 plot_mat = loadmat(r'..\AP_traces_all_WEBSITE.mat')
@@ -103,7 +106,10 @@ control_label= 'GCaMP6s'
 #              'jGCaMP8.543', 'jGCaMP8.707', 'jGCaMP8.455', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
 
 # labels and order of legend
-hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
+if plot_subset_for_paper:
+    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'GCaMP6s', 'jGCaMP7f', 'jGCaMP7s', 'XCaMP-Gf']# [h[0] for h in hits[0]]
+else:
+    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
                 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
 
 n_stims = control_med_med_dff.shape[1]
@@ -140,5 +146,13 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
     )
 )
 fig.show()
-fig.write_html(html_write_dir, auto_open=True)
-fig.write_image(r"D:\ufgcamp_paper_data\culture-screen-figs/AP_plots.pdf")
+
+# for 1AP, 3AP case, zoom in
+fig.update_xaxes(range=[0.8, 1.6], row=1, col=1)
+fig.update_xaxes(range=[0.8, 1.6], row=1, col=2)
+
+# save subset version to pdf directory, save webpage version to site directory
+if plot_subset_for_paper:
+    fig.write_image(pdf_dir)
+else:
+    fig.write_html(html_write_dir, auto_open=True)

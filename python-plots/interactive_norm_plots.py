@@ -19,11 +19,15 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 import plotly.express as px
 
+plot_subset_for_paper = 1 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
+html_write_dir = r'D:\site\ilyakolb.github.io\interactive_norm_plots.html'
+pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/norm_plots.pdf"
+
+
 n_subplots = 6
 n_rows = 2
 n_cols = 3
 
-html_write_dir = r'D:\site\ilyakolb.github.io\interactive_norm_plots.html'
 pio.templates.default = "plotly_white"
 
 subplot_titles = ['peak dF/F', 'SNR (norm.)', 'half-rise time (norm.)', 'full rise time (norm.)', 'half-decay time (norm.)']
@@ -35,7 +39,10 @@ colorscheme = px.colors.qualitative.Alphabet # 0th: control
 nAPs = plot_mat['nAPs'][0]
 
 # labels and order of legend
-hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
+if plot_subset_for_paper:
+    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'GCaMP6s', 'jGCaMP7f', 'jGCaMP7s', 'XCaMP-Gf']# [h[0] for h in hits[0]]
+else:
+    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
                 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
 
 all_norm_plots = plot_mat['normPlots_struct'][0]
@@ -87,7 +94,11 @@ fig.update_xaxes(type="log",
     )
 
 fig.show()
-# fig.write_html(html_write_dir, auto_open=True)
-fig.write_image(r"D:\ufgcamp_paper_data\culture-screen-figs/norm_plots.pdf")
+
+if plot_subset_for_paper:
+    fig.write_image(pdf_dir)
+else:
+    fig.write_html(html_write_dir, auto_open=True)
+
 
 
