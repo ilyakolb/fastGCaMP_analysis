@@ -87,7 +87,7 @@ fig.update_xaxes(type="log",
     )
 
 fig.show()
-fig.write_html(html_write_dir, auto_open=True)
-
+# fig.write_html(html_write_dir, auto_open=True)
+fig.write_image(r"D:\ufgcamp_paper_data\culture-screen-figs/norm_plots.pdf")
 
 

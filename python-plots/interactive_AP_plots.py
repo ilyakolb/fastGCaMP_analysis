@@ -79,6 +79,8 @@ hits_med_med_dff = plot_mat['plot_out'][0,0]['hits_med_med_dff'] # [time x nStim
 time = plot_mat['plot_out'][0,0]['time'][0] # time vector
 hits = plot_mat['plot_out'][0,0]['hits'] # array of hit name strings
 hits = [h[0] for h in hits[0]]
+
+
 control = plot_mat['plot_out'][0,0]['control'][0] # control name string
 hits_med_med_dff_sterr =  plot_mat['plot_out'][0,0]['hits_med_med_dff_sterr']
 control_med_med_dff_sterr = plot_mat['plot_out'][0,0]['control_med_med_dff_sterr']
@@ -116,14 +118,15 @@ fig = make_subplots(rows=2, cols=2, subplot_titles=stim_names, x_title='Time (s)
 for i in range(n_stims):
 
     # plot hits
-    for hit in hits_label: # for j in range(n_hits):
+    for j,hit in enumerate(hits_label): # for j in range(n_hits):
+        
         if hit == control_label:
             # plot control
-            add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], i+1, colorscheme[0], control_label)
+            add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], i+1, colorscheme[j], control_label)
         else:
             hit_id = mapping.get(hit)
             hit_idx = hits.index(hit_id)
-            add_shaded_trace(time, hits_med_med_dff[:,i,hit_idx], hits_med_med_dff_sterr[:,i,hit_idx], i+1, colorscheme[hit_idx+1], hit)
+            add_shaded_trace(time, hits_med_med_dff[:,i,hit_idx], hits_med_med_dff_sterr[:,i,hit_idx], i+1, colorscheme[j], hit)
 
 fig.update_traces(mode='lines')
 fig.update_layout(hovermode="closest", #, width=800, height=400,
@@ -138,4 +141,4 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
 )
 fig.show()
 fig.write_html(html_write_dir, auto_open=True)
-
+fig.write_image(r"D:\ufgcamp_paper_data\culture-screen-figs/AP_plots.pdf")

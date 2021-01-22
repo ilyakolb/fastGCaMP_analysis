@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle, os
 from scipy import stats
+from plot_averages_2 import plot_frap_curve
 
 # plot average FRAP traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
@@ -20,6 +21,7 @@ def rescale(_trace, _max):
     _t = _trace * 1/(_max-np.min(_trace))
     return _t - _t[0]# - np.min(_t)
 
+    
 def get_trace_to_plot(trace_array):
     (traces_mean, traces_std) = get_mean_std(trace_array)
     min_point_idx = traces_mean.argmin()
@@ -83,15 +85,17 @@ for construct in all_constructs:
     ax1 = plt.subplot(2,1,1)
     t = np.arange(traces_regular_construct[0].shape[0])/s_rate
     (reg_mean, reg_std, t) = get_trace_to_plot(np.array(traces_regular_construct))
-    ax1.plot(t, reg_mean, colors[0])
-    ax1.fill_between(t, reg_mean + reg_std, reg_mean - reg_std, facecolor=colors[0], color=colors[0], alpha=0.2)
+    plot_frap_curve(t, 100*reg_mean, 100*reg_std, colors[0], ax1)
+    # ax1.plot(t, reg_mean, colors[0])
+    # ax1.fill_between(t, reg_mean + reg_std, reg_mean - reg_std, facecolor=colors[0], color=colors[0], alpha=0.2)
     
     (iono_mean, iono_std, t) = get_trace_to_plot(np.array(traces_iono_construct))
-    ax1.plot(t, iono_mean, colors[1])
-    ax1.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
-    
-    ax1.plot(t, np.ones_like(t), 'k--')
+    plot_frap_curve(t, 100*iono_mean, 100*iono_std, colors[1], ax1)
+    # ax1.plot(t, iono_mean, colors[1])
+    # ax1.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
     ax1.legend(construct_legend)
+    ax1.plot(t, 100*np.ones_like(t), 'k--')
+    
     # plt.ylim([-0.4, 0.4])
     ax1.set_xlabel('Time (s)')
     
@@ -106,8 +110,8 @@ for construct in all_constructs:
     print(construct + ': regular vs iono: p = ' + str(pval))
     (percent_reg_mean, percent_reg_std) = get_mean_std(percents_regular_single_construct)
     (percent_iono_mean, percent_iono_std) = get_mean_std(percents_iono_single_construct)
-    ax2.bar(0, 100+100*percent_reg_mean, yerr = 100*percent_reg_std, color='black')
-    ax2.bar(1, 100+100*percent_iono_mean, yerr = 100*percent_iono_std, color='black')
+    ax2.bar(0, 100*percent_reg_mean, yerr = 100*percent_reg_std, color='black')
+    ax2.bar(1, 100*percent_iono_mean, yerr = 100*percent_iono_std, color='black')
     # plt.errorbar(x, 100*percent_reg_mean, 100*percent_reg_std, color=colors[0])
     # plt.errorbar(x, 100*percent_iono_mean, 100*percent_iono_std, color=colors[1])
     ax2.set_xticks([0,1])

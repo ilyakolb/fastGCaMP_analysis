@@ -46,10 +46,15 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 import os, pickle
 
-def rescale(_trace, _max):
+def rescale_0to1(_trace, _max):
     # rescale so that _max value (plateau) = 1 and min value of trace = 0
     _t = _trace * 1/(_max-np.min(_trace))
     return _t - np.min(_t)
+
+def rescale_to1(_trace, _max):
+    # rescale so that _max value (plateau) = 1
+    _t = _trace / _max
+    return _t
 
 def decode_filename(fname):
     '''
@@ -186,7 +191,7 @@ for csv_filename in csv_filenames:
                 current_roi = current_roi - plateaus_roi1[j]
             elif i == 1:
                 # current_roi = rescale(current_roi, np.mean(current_roi[:5]))
-                current_roi = rescale(current_roi, plateaus_roi2[j])
+                current_roi = rescale_to1(current_roi, plateaus_roi2[j])
             elif i == 2:
                 current_roi = current_roi - plateaus_roi3[j]
 #                elif i == 3:
@@ -198,15 +203,15 @@ for csv_filename in csv_filenames:
         roi_avg = roi_avg/(j+1)
         
         if i == 1:
-            ax.plot(t_combo, np.zeros_like(t_combo), 'k--')
+            ax.plot(t_combo, np.ones_like(t_combo), 'k--')
             ax.plot(t_combo, roi_avg, 'r-')
             ax.set_title('roi ' + str(i+1))
             ax.set_ylim([-0.5, 1.5])
-        if i == 1: # roi 2 only (FRAP point)
+            
             if construct not in all_roi_avg_data.keys():
                 all_roi_avg_data[construct] = []
             all_roi_avg_data[construct].append(roi_avg)
-            percent_change[j] = (np.mean(current_roi[-1*plateau_end_idx:]) - plateaus_roi2[j])/plateaus_roi2[j]
+            percent_change[j] = np.mean(current_roi[-1*plateau_end_idx:]) # (np.mean(current_roi[-1*plateau_end_idx:]) - plateaus_roi2[j])/plateaus_roi2[j]
             print(percent_change)
 
     # plot plateaus on entire timeseries and save (roi2 only)

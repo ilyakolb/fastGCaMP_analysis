@@ -21,6 +21,11 @@ def rescale(_trace, _max):
     _t = _trace * 1/(_max-np.min(_trace))
     return _t - _t[0]# - np.min(_t)
 
+def plot_frap_curve(_t, _mean, _std, _color, _ax):
+    # _ax.plot(t, mean, colors[i])
+    plot_every = 10
+    _ax.errorbar(t[::plot_every], _mean[::plot_every],yerr=_std[::plot_every], fmt='o-', color=_color, markeredgecolor='white', markersize=4)
+    
 def get_trace_to_plot(trace_array, name):
     '''
 
@@ -85,8 +90,8 @@ percents_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488' + peak_str +
 s_rate = 50
 
 
-# plt.close('all')
-colors = ['gray', 'red', 'blue', 'cyan', 'green']
+plt.close('all')
+colors = ['gray', 'darkred', 'blue', 'darkgreen', 'green']
 construct_legend = []
 percent_fig, axs = plt.subplots(2,1)
 percent_fig.set_size_inches([5.62, 6.85])
@@ -101,37 +106,41 @@ for i,construct in enumerate(traces_405.keys()):
     
     construct_legend.append(construct + '(n={})'.format(len(traces_array)))
     
-    axs[0].plot(t, mean, colors[i])
-    axs[0].fill_between(t, mean + std, mean - std, facecolor=colors[i], color=colors[i], alpha=0.2)
-    
+    plot_frap_curve(t, mean, std, colors[i], axs[0])
+
     percents_construct = percents_405[construct]
     x = np.arange(1,percents_construct[0].shape[0]+1)
     (percent_mean, percent_std) = get_mean_std(np.array(percents_construct))
-    axs[1].bar(i, 100+100*percent_mean, yerr = 100*percent_std, color='black')
+    axs[1].bar(i, 100*percent_mean, yerr = 100*percent_std, color='black')
 
 
 # add 604.2 bleached with 488 traces
+
+'''
 (mean, std, t) = get_trace_to_plot(np.array(traces_488['604.2']), '604.2_488stim')
 (percent_mean, percent_std) = get_mean_std(np.array(percents_488['604.2']))
-axs[0].plot(t, mean, colors[i+1])
-axs[0].fill_between(t, mean + std, mean - std, facecolor=colors[i+1], color=colors[i+1], alpha=0.2)
-axs[1].bar(i+1, 100+100*percent_mean, yerr = 100*percent_std, color='black')
+# axs[0].plot(t, mean, colors[i+1])
+# axs[0].fill_between(t, mean + std, mean - std, facecolor=colors[i+1], color=colors[i+1], alpha=0.2)
+plot_frap_curve(t, mean, std, colors[i+1], axs[0])
+axs[1].bar(i+1, 100*percent_mean, yerr = 100*percent_std, color='black')
 construct_legend.append('604.2 (488 bleach) (n={})'.format(len(percents_488['604.2'])))
+'''
 axs[0].set_ylabel('Recovery (%)')
 axs[1].set_ylabel('Recovery (%)')
 axs[1].set_xticks(np.arange(0,i+2))
 axs[1].set_xticklabels(construct_legend)
 
+axs[0].legend(construct_legend)
+
 # unity lines
 axs[0].plot(t, 100*np.ones_like(t), 'k--')
 axs[1].plot([0, i+1], [100,100], 'k--')
 
-axs[0].set_xlim([-0.2, 4])
+axs[0].set_xlim([-0.2, 8])
 axs[0].set_xlabel('Time (s)')
-axs[0].legend(construct_legend)
+
 plt.tight_layout()
 percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
-
 
 
 
@@ -141,16 +150,18 @@ f.set_size_inches([4.99, 6.56])
 
 (mean, std, t) = get_trace_to_plot(np.array(traces_405['10.641']), '10.641')
 (percent_mean_405, percent_std_405) = get_mean_std(np.array(percents_405['10.641']))
-axs[0].plot(t, mean, color = 'darkviolet')
-axs[0].fill_between(t, mean + std, mean - std, facecolor='darkviolet', color='darkviolet', alpha=0.2)
-axs[1].bar(0, 100+100*percent_mean_405, yerr=100*percent_std_405, color='darkviolet')
+plot_frap_curve(t, mean, std, 'darkviolet', axs[0])
+# axs[0].plot(t, mean, color = 'darkviolet')
+# axs[0].fill_between(t, mean + std, mean - std, facecolor='darkviolet', color='darkviolet', alpha=0.2)
+axs[1].bar(0, 100*percent_mean_405, yerr=100*percent_std_405, color='darkviolet')
 construct_legend = ['10.641 (405 bleach) (n={})'.format(len(percent_std_405))]
 
 (mean, std, t) = get_trace_to_plot(np.array(traces_488['10.641']), '10.641_488stim')
 (percent_mean_488, percent_std_488) = get_mean_std(np.array(percents_488['10.641']))
-axs[0].plot(t, mean, color = 'cyan')
-axs[0].fill_between(t, mean + std, mean - std, facecolor='cyan', color='cyan', alpha=0.2)
-axs[1].bar(1, 100+100*percent_mean_488, yerr=100*percent_std_488, color='cyan')
+plot_frap_curve(t, mean, std, 'cyan', axs[0])
+# axs[0].plot(t, mean, color = 'cyan')
+# axs[0].fill_between(t, mean + std, mean - std, facecolor='cyan', color='cyan', alpha=0.2)
+axs[1].bar(1, 100*percent_mean_488, yerr=100*percent_std_488, color='cyan')
 axs[1].set_xticks([0,1])
 construct_legend = ['10.641 (405 bleach) (n={})'.format(len(traces_405['10.641'])), '10.641 (488 bleach) (n={})'.format(len(traces_488['10.641']))]
 axs[0].legend(construct_legend)
