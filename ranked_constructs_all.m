@@ -3,7 +3,7 @@
 
 clearvars -except good
 clc
-close all
+% close all
 
 base = 'Z:/';
 
@@ -31,34 +31,21 @@ cMap = getColorMap(length(hits));
 
 % remove bad stuff here
 good_filt = good;
-good_filt = good(~contains(good.construct, '410.'), :);
-good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
-good_filt = good_filt(good_filt.x1_fp > 1, :); % > GCaMP6s response
 
-%% trying pareto optimization
-% weights
+good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
+% good_filt = good_filt(good_filt.x1_fp > 1, :); % > GCaMP6s response
+good_filt = good_filt(~contains(good_filt.construct, {'TE', 'none'}), :); % remove empty wells
+good_filt = good_filt(good_filt.rise_1_fp > 0, :); % remove oddities
+% good_filt = good(~contains(good.construct, '410.'), :);
+
+
+
 
 nConstructs = size(good_filt,1);
 varNamesToPlot = { 'x1_fp', 'rise_1_fp', 'decay_1_fp', 'timetopeak_1_fp'};
 nVars = length(varNamesToPlot);
-figure %('Position', [2034          47        1087         945])
-% subplot(nVars, 1, 1)
-% bar(table2array(rankedTable(:, rankVarName)), 1);
-% hold on, plot([0 nConstructs], [1 1], 'r-', 'linewidth' ,1)
+figure 
 
-% plot black marker for control
-% scatter(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), [], [0 0 0]);
-% text(find(contains(rankedTable.construct, control)), rankedTable(contains(rankedTable.construct, control),:).(rankVarName), control);
-
-% plot markers for hits
-% for i = 1:length(hits)
-%     currentHit = hits{i};
-%     currentHitIdx = contains(rankedTable.construct, hits{i});
-%     scatter(find(currentHitIdx), rankedTable(currentHitIdx,:).(rankVarName), [], cMap(i,:));
-%     text(find(currentHitIdx), rankedTable(currentHitIdx,:).(rankVarName), currentHit)
-% end
-
-% plot ordered list of all
 for i = 1:nVars
     currentVarName = varNamesToPlot{i};
     
@@ -92,6 +79,26 @@ end
 hits = {};
 tail(rankedTable)
 
+function [subset] = getBoundedSubset(g, series, startIdx, endIdx)
+% getBoundedSubset: return 'good' array matching a particular series,
+% bounded by startIndx and endIdx
+% g: good table
+% series (str): series should end with . i.e. '500.'
+% startIdx: (int) index with which to start/stop matching
+% example: getBoundedSubset(g, '500.', 16, 27) returns table with
+% constructs 500.16 - 500.27
+
+% first match the series
+
+subset = g(contains(g.construct, series), :);
+
+idx_array = startIdx:endIdx;
+idx_array_str = arrayfun(@(x) ['.' num2str(x)], idx_array, 'UniformOutput', 0);
+
+% then match the startIdx:endIdx array
+subset = subset(contains(subset.construct, idx_array_str));
+
+end
 % comboVar = good.df_f;
 % [group, id] = findgroups(good.construct);
 % groupFunc = @(p) [nanmean(p) nanstd(p)];
