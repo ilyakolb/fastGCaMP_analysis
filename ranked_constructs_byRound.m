@@ -6,7 +6,7 @@ clearvars -except good
 clc
 % close all
 
-rank_by_rounds = 0;
+rank_by_rounds = 1;
 
 if rank_by_rounds
     pdf_dir = 'D:\ufgcamp_paper_data\culture-screen-figs\ranked\ranked_constructs_byRound.pdf';
@@ -15,8 +15,7 @@ else
 end
 base = 'Z:/';
 varNamesToPlot = { 'x1_fp', 'rise_1_fp', 'decay_1_fp', 'timetopeak_1_fp'};
-
-% control = '10.641';
+varNameTitles = {'\DeltaF/F (norm.)', 'Rise time (norm.)', 'Decay time (norm.)', 'Peak time (norm.)'};
 hits = {'10.641', '10.693', '10.921', '500.456', '500.686', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 hits_labels = {'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 % hits = {'10.921', '500.456', '500.688'};
@@ -80,6 +79,7 @@ nRounds = length(all_good_rounds);
 
 nVars = length(varNamesToPlot);
 f = figure('position', [29          98        1803         880]);
+f.Renderer='Painters';
 
 startIdx = 0; % x index to start the bar plot
 for j = 1:nRounds
@@ -88,9 +88,6 @@ for j = 1:nRounds
     for i = 1:nVars
         currentVarName = varNamesToPlot{i};
         
-        if j == nRounds
-            hold on, plot([0 nConstructs], [1 1], 'r-', 'linewidth' ,1)
-        end
         % if kinetics, sort by descending (low values = fast = good)
         if contains(currentVarName, 'timetopeak') || contains(currentVarName, 'decay') || contains(currentVarName, 'rise')
             ascendOrDescent = 'descend';
@@ -102,20 +99,23 @@ for j = 1:nRounds
         
         bar_idx = startIdx:(startIdx + nConstructs_round-1);
         subplot(length(varNamesToPlot), 1, i)
+        
         if rank_by_rounds
             barcolor = 1 - 0.1 * j * ones(3,1);
         else
             barcolor = [0 0 0];
         end
         hold on, bar(bar_idx, tableVar, 1, 'FaceColor', barcolor, 'EdgeColor', barcolor)
-        title(currentVarName, 'Interpreter', 'none')
+        title(varNameTitles{i})
 
-
+        if j == nRounds
+            hold on, plot([0 nConstructs], [1 1], 'b-', 'linewidth' ,1)
+        end
         % plot markers for control and relevant hits here
         for k = 1:length(hits)
             currentHit = hits{k};
             currentHitIdx = contains(rankedTable.construct, hits{k});
-            scatter(startIdx-1 + find(currentHitIdx), rankedTable(currentHitIdx,:).(currentVarName), [], [0 0 0]);
+            scatter(startIdx-1 + find(currentHitIdx), rankedTable(currentHitIdx,:).(currentVarName), 20, [1 0 0], 'filled', 'v');
             text(startIdx-1 + find(currentHitIdx), ...
                 rankedTable(currentHitIdx,:).(currentVarName), ...
                 ['  ' hits_labels{k}], ...
@@ -128,4 +128,4 @@ for j = 1:nRounds
     startIdx = startIdx + nConstructs_round;
 end
 
-saveas(f, pdf_dir);
+print(pdf_dir, '-dpdf', '-fillpage')
