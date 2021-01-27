@@ -90,19 +90,19 @@ save_data       = True
 normalize_roi   = True
 keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
-bleachlaser_condition = 'stim488' # 'stim405' or 'stim488'
-solution_condition = 'iono' # 'regular' or 'iono'
+bleachlaser_condition = 'stim405' # 'stim405' or 'stim488'
+solution_condition = 'regular' # 'regular' or 'iono'
 
 # ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
-all_constructs = ['604.2', '10.641', '500.688','500.686']
+all_constructs = ['EGFP-B-actin', 'mEmCyto']# ['604.2', '10.641', '500.688','500.686', 'EGFP-B-actin']
 
 num_peaks_to_plot = 1 # or 10 peaks for FULL
-length_to_plot = 400
+length_to_plot = 325
 samples_pre_stim = 20 if bleachlaser_condition == 'stim405' else 30
-peak_thresh = 20000
+peak_thresh = 1 # diff > peak_thresh used to detect stimuli
 plateau_start_idx = 100
 plateau_end_idx = 20 # was 10
-s_rate = 50 # DOUBLE-CHECK
+s_rate = 50
 
 # directory of combined data
 combo_dir = r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\combined' 
@@ -143,8 +143,11 @@ for csv_filename in csv_filenames:
         
     
     all_rois = (roi1, roi2, roi3) #, roi4)
-    idx_peaks, _ = find_peaks(roi1, height=peak_thresh, distance=20)
+    roi2_diff = np.diff(roi2, append=roi2[-1])
+    idx_peaks, _ = find_peaks(roi2_diff, height=peak_thresh, distance=20)
     
+    # fudge factor to adjust for stim duration
+    idx_peaks = idx_peaks + 2
     print('total number of stims: {}'.format(len(idx_peaks)))
     if num_peaks_to_plot != 'all':
 
@@ -152,7 +155,8 @@ for csv_filename in csv_filenames:
             
     # adjust peak indices to find rightmost peak
     for i,_ in enumerate(idx_peaks):
-        idx_peaks[i] += np.where(roi1[idx_peaks[i]:idx_peaks[i] +20] > peak_thresh)[0][-1]
+        # find rightmost edge of stimulus to align to
+        idx_peaks[i] += np.where(roi2[idx_peaks[i]:idx_peaks[i] +10] > roi2[idx_peaks[i]] / 2)[0][-1]
     
     num_stims = len(idx_peaks)
     

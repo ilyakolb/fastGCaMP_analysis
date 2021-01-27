@@ -32,10 +32,10 @@ import os
 
 
 plt.close('all')
-num_peaks_to_plot = 10 # 40 # 'all' to plot all
+num_peaks_to_plot = 1 # 40 # 'all' to plot all
 length_to_plot = 200
 samples_pre_stim = 10 # was 10
-peak_thresh = 20000
+peak_thresh = 1 # threshold defined as max value - peak_thresh_subtract
 plateau_start_idx = 100
 plateau_end_idx = 20 # was 10
 
@@ -44,14 +44,22 @@ save_data       = False
 normalize_roi   = True
 keep_figs_open  = True # True to keep all generated figures open. Memory errors if too many open
 
-all_constructs = ['604.2']# [ '10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
-all_cell_num = ['007']# ['001', '002', '003', '004', '005']
+'''
+file name structure:
+<data dir>/<exp_folder>/<filename>
+
+where <filename> is <all_constructs[0].<all_cell_num[0]> e.g. 604.2.007
+
+'''
+data_dir = r'./data'
+exp_folder = 'exp5_20210126'# 'exp3_20201211'
+all_constructs = ['EGFP-B-actin']# ['mEmCyto']# [ '10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
+all_cell_num = ['006']
 
 
 plateau_data = {} # dict for storing all plateau data
 all_roi_avg_data = {} # 
 
-exp_folder = 'exp4_20201213'# 'exp3_20201211'
 for construct in all_constructs:
     
     plateau_data[construct] = []
@@ -60,8 +68,8 @@ for construct in all_constructs:
     for cell_num in all_cell_num:
         # construct = # '500.688' # '10.641', '500.456', '500.688'
         # cell_num = '004'
-        filename = construct + '.' +cell_num + '.csv'
-        data = pd.read_csv(os.path.join('./data',exp_folder, filename)) 
+        filename = construct + '.' + cell_num + '.csv'
+        data = pd.read_csv(os.path.join(data_dir,exp_folder, filename)) 
         
 
         
@@ -88,7 +96,13 @@ for construct in all_constructs:
             
         
         all_rois = (roi1, roi2, roi3) #, roi4)
-        idx_peaks, _ = find_peaks(roi1, height=peak_thresh, distance=20)
+        
+        # changed to roi2 from roi1
+        roi2_diff = np.diff(roi2, append=roi2[-1])
+        idx_peaks, _ = find_peaks(roi2_diff, height=peak_thresh, distance=20)
+        
+        # peak_thresh = np.max(roi1) - peak_thresh_subtract
+        # idx_peaks, _ = find_peaks(roi1, height=peak_thresh, distance=20)
         
         print('total number of stims: {}'.format(len(idx_peaks)))
         if num_peaks_to_plot != 'all':
@@ -96,12 +110,14 @@ for construct in all_constructs:
         
         # adjust peak indices to find rightmost peak
         for i,_ in enumerate(idx_peaks):
-            idx_peaks[i] += np.where(roi1[idx_peaks[i]:idx_peaks[i] +10] > peak_thresh)[0][-1]
+            idx_peaks[i] += np.where(roi2[idx_peaks[i]:idx_peaks[i] +10] > roi2[idx_peaks[i]] / 2)[0][-1]
+            # idx_peaks[i] += np.where(roi1[idx_peaks[i]:idx_peaks[i] +10] > peak_thresh)[0][-1]
         
         num_stims = len(idx_peaks)
         
         fig, raw_ax = plt.subplots()
         raw_ax.plot(t, roi2)
+        # plt.plot(t, np.diff(roi2, append=roi2[-1]))
         raw_ax.plot(t[idx_peaks], roi2[idx_peaks], 'ro')
         raw_ax.set_xlabel("s")
         raw_ax.set_ylabel("roi2")
@@ -158,45 +174,3 @@ for construct in all_constructs:
             current_plateau = plateau(i, roi2)
             raw_ax.plot(plateau_t(i), current_plateau, 'k-')
             
-            # plateau_data[construct].append(current_plateau.mean()) # add plateau mean to csv
-        
-        fig_plateaus, ax = plt.subplots()
-        ax.plot(plateaus_roi2, 'ko-')
-        ax.plot(plateaus_roi3, 'ro-')
-        ax.legend(['FRAP zone (roi2)', 'non-FRAP zone (roi3)'])
-        ax.set_title("plateaus")
-        ax.set_xlabel("stim num")
-        ax.set_ylabel("frap roi")
-        
-        # percent change in plateaus (next plateau - current plateau ) / current plateau
-        percent_change = np.diff(plateaus_roi2) / plateaus_roi2[0:-1]
-        fig_prcnt_chng = plt.figure()
-        plt.plot(percent_change, 'ko-')
-        plt.title("fraction change plateau")
-        plt.xlabel("stim num")
-        plt.ylabel("fraction change")
-        
-        plateau_data[construct].extend(percent_change)
-        
-        if save_figs:
-            # save plots
-            fig_stimavg.savefig(os.path.join('./analysis', folder_name, filename.replace('.csv', '.png')))
-            fig_prcnt_chng.savefig(os.path.join('./analysis', folder_name, 'percent_change_' + filename.replace('.csv', '.png')))
-            fig_plateaus.savefig(os.path.join('./analysis', folder_name, 'plateaus_' + filename.replace('.csv', '.png')))
-        
-        if not keep_figs_open:
-            plt.close('all')
-
-if save_data:
-    # convert plateau to dataframe, save
-    df = pd.DataFrame.from_dict(plateau_data)
-    df.to_csv(r'./analysis/plateau_data{}.csv'.format('_norm' if normalize_roi else ''))
-    df.to_pickle(r'./analysis/plateau_data{}.pkl'.format('_norm' if normalize_roi else ''))
-    
-    df_roi = pd.DataFrame.from_dict(all_roi_avg_data)
-    
-    # save all_roi_avg_data
-    if normalize_roi:
-        df_roi.to_pickle(r'./analysis/all_roi_avg_data_norm.pkl')
-    else:
-        df_roi.to_pickle(r'./analysis/all_roi_avg_data.pkl')
