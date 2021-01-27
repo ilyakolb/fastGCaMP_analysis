@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pickle, os
 from scipy import stats
 from plot_averages_2 import plot_frap_curve
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 # plot average FRAP traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
@@ -41,8 +42,8 @@ def get_trace_to_plot(trace_array):
     '''
 
 
-    
 
+save_figs = 1
 one_peak = True
 peak_str = '_1peak' if one_peak else ''
 
@@ -80,29 +81,37 @@ for construct in all_constructs:
     construct_legend[0] += (' (n={})'.format(len(percents_regular_construct)))
     construct_legend[1] += (' (n={})'.format(len(percents_iono_construct)))
     
-    f = plt.figure(figsize = [4.99, 6.56])
+    f = plt.figure(figsize = [4.5, 4.5])
     f.suptitle(construct)
-    ax1 = plt.subplot(2,1,1)
+    ax1 = plt.subplot()
     t = np.arange(traces_regular_construct[0].shape[0])/s_rate
-    (reg_mean, reg_std, t) = get_trace_to_plot(np.array(traces_regular_construct))
-    plot_frap_curve(t, 100*reg_mean, 100*reg_std, colors[0], ax1)
+    (reg_mean, reg_std, t_reg) = get_trace_to_plot(np.array(traces_regular_construct))
+    
     # ax1.plot(t, reg_mean, colors[0])
     # ax1.fill_between(t, reg_mean + reg_std, reg_mean - reg_std, facecolor=colors[0], color=colors[0], alpha=0.2)
     
-    (iono_mean, iono_std, t) = get_trace_to_plot(np.array(traces_iono_construct))
-    plot_frap_curve(t, 100*iono_mean, 100*iono_std, colors[1], ax1)
-    # ax1.plot(t, iono_mean, colors[1])
-    # ax1.fill_between(t, iono_mean + iono_std, iono_mean - iono_std, facecolor=colors[1], color=colors[1], alpha=0.2)
+    (iono_mean, iono_std, t_iono) = get_trace_to_plot(np.array(traces_iono_construct))
+    
+    # array sizes can be different, shorten
+    shortest_length = np.min([t_reg.shape[0], t_iono.shape[0]])
+    reg_mean = reg_mean[:shortest_length]
+    reg_std = reg_std[:shortest_length]
+    t_reg = t_reg[:shortest_length]
+    iono_mean = iono_mean[:shortest_length]
+    iono_std = iono_std[:shortest_length]
+    t_iono = t_iono[:shortest_length]
+    
+    plot_frap_curve(t_reg, 100*reg_mean, 100*reg_std, colors[0], ax1)
+    plot_frap_curve(t_iono, 100*iono_mean, 100*iono_std, colors[1], ax1)
     ax1.legend(construct_legend)
     ax1.plot(t, 100*np.ones_like(t), 'k--')
     
-    # plt.ylim([-0.4, 0.4])
+    plt.ylim([80, 105])
     ax1.set_xlabel('Time (s)')
     
     
-    # percent change plot
-    
-    ax2 = plt.subplot(2,1,2)
+    # percent change bar plots    
+    ax2 = inset_axes(ax1, width="30%", height="40%", loc=4, borderpad=1)
     x = np.arange(1,percents_regular_construct[0].shape[0]+1)
     percents_regular_single_construct  = np.array(percents_regular_construct)
     percents_iono_single_construct = np.array(percents_iono_construct)
@@ -110,13 +119,15 @@ for construct in all_constructs:
     print(construct + ': regular vs iono: p = ' + str(pval))
     (percent_reg_mean, percent_reg_std) = get_mean_std(percents_regular_single_construct)
     (percent_iono_mean, percent_iono_std) = get_mean_std(percents_iono_single_construct)
-    ax2.bar(0, 100*percent_reg_mean, yerr = 100*percent_reg_std, color='black')
-    ax2.bar(1, 100*percent_iono_mean, yerr = 100*percent_iono_std, color='black')
+    ax2.bar(0, 100*percent_reg_mean, yerr = 100*percent_reg_std, facecolor='white', edgecolor = colors[0])
+    ax2.bar(1, 100*percent_iono_mean, yerr = 100*percent_iono_std, facecolor='white', edgecolor = colors[1])
     # plt.errorbar(x, 100*percent_reg_mean, 100*percent_reg_std, color=colors[0])
     # plt.errorbar(x, 100*percent_iono_mean, 100*percent_iono_std, color=colors[1])
     ax2.set_xticks([0,1])
-    ax2.set_xticklabels(construct_legend)
+    ax2.set_xticklabels([])
     ax2.set_ylabel('Recovery (%)')
-    plt.tight_layout()
-    f.savefig(os.path.join('./analysis/normalized', 'iono_' + construct + '.pdf'))
+    # plt.tight_layout()
+    
+    if save_figs:
+        f.savefig(os.path.join('./analysis/normalized', 'iono_' + construct + '.pdf'))
 

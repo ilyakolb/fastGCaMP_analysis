@@ -91,10 +91,10 @@ normalize_roi   = True
 keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
 bleachlaser_condition = 'stim405' # 'stim405' or 'stim488'
-solution_condition = 'regular' # 'regular' or 'iono'
+solution_condition = 'iono' # 'regular' or 'iono'
 
 # ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
-all_constructs = ['EGFP-B-actin', 'mEmCyto']# ['604.2', '10.641', '500.688','500.686', 'EGFP-B-actin']
+all_constructs = ['EGFP.B-actin', 'mEm.Cyto', '604.2', '10.641', '500.688','500.686']
 
 num_peaks_to_plot = 1 # or 10 peaks for FULL
 length_to_plot = 325
