@@ -34,7 +34,8 @@ control_halfrise_sterr = std(controlMutant.rise_half_med,0,2)/sqrt(size(controlM
 control_timetopeak_mean = nanmean(controlMutant.timetopeak_med,2);
 control_timetopeak_sterr = std(controlMutant.timetopeak_med,0,2)/sqrt(size(controlMutant.timetopeak_med,2));
 control_halfdecay_mean = nanmean(controlMutant.decay_half_med,2);
-control_halfdecay_sterr = std(controlMutant.decay_half_med,0,2)/sqrt(size(controlMutant.decay_half_med,2));
+decays_not_nan = sum(~isnan(controlMutant.decay_half_med),2);
+control_halfdecay_sterr = nanstd(controlMutant.decay_half_med,0,2)./sqrt(decays_not_nan);
 
 % add control to normPlots_struct
 % for control, all means = 1
@@ -109,6 +110,8 @@ for i = 2:length(mutant_hits)
     mutant_halfdecay_mean = nanmean(plotMutant.decay_half_med,2);
     mutant_halfdecay_sterr = nanstd(plotMutant.decay_half_med,0,2) / size(plotMutant.decay_half_med,2);
     mutant_halfdecay_mean_norm = mutant_halfdecay_mean ./ control_halfdecay_mean;
+    
+    decays_not_nan = sum(~isnan(plotMutant.decay_half_med),2);
     mutant_halfdecay_sterr_norm = normalized_error(plotMutant.decay_half_med, controlMutant.decay_half_med, 2);
     figure(halfdecay_fig); hold on, errorbar(nAPs, mutant_halfdecay_mean_norm, mutant_halfdecay_sterr_norm,'color', cMap(i-1,:), 'linewidth', 2);
     
@@ -170,14 +173,15 @@ ylabel('half-decay')
 % legend(plotLegend)
 set(gca, 'XScale', 'log'); box off
 
-% apply 'default' style
-sdf(dff_fig, 'default')
-sdf(SNR_fig, 'default')
-sdf(halfrise_fig, 'default')
-sdf(halfdecay_fig, 'default')
 
 % save figs and pdfs
 if saveOn
+    % apply 'default' style
+    sdf(dff_fig, 'default')
+    sdf(SNR_fig, 'default')
+    sdf(halfrise_fig, 'default')
+    sdf(halfdecay_fig, 'default')
+
     saveas(dff_fig, fullfile(saveFolder, 'dff.fig'));
     saveas(SNR_fig, fullfile(saveFolder, 'SNR.fig'));
     saveas(halfrise_fig, fullfile(saveFolder, 'halfrise.fig'));
@@ -210,7 +214,7 @@ if saveOn
 end
 
 % save struct for plotting in plotly
-save('normPlots.mat', 'normPlots_struct', 'nAPs')
+save('plotly_normPlots.mat', 'normPlots_struct', 'nAPs')
 %% testing f0
 % mngGECO 1374
 % 6s: 1302.4355±25.5401

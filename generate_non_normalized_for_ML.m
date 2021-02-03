@@ -28,6 +28,7 @@ if isempty(whos('mutant'))
     % load('Z:\GECIScreenData\Analysis\pile_all_GCaMP96b_upto_20161214.mat')
     % gcamp3 dataset
     load('Z:\GECIScreenData\Analysis\pile_all_GCaMP_upto_20130703.mat')
+    
 end
 
 FPidx = [1 3 5 9]; % indices of 1,3,10,160 AP stims for GCaMP3 dataset

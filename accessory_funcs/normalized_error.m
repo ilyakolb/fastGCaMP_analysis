@@ -3,8 +3,8 @@ function [normError] = normalized_error(A,B, dim)
 % calculates standard error
 % see https://en.wikipedia.org/wiki/Propagation_of_uncertainty
 
-normError = mean(A, dim)./mean(B, dim).*...
-    sqrt( (std(A,0,dim)./mean(A,dim)).^2 + (std(B,0,dim)./mean(B,dim)).^2  );
+normError = nanmean(A, dim)./nanmean(B, dim).*...
+    sqrt( (nanstd(A,0,dim)./nanmean(A,dim)).^2 + (nanstd(B,0,dim)./nanmean(B,dim)).^2  );
 
 normError = normError ./ sqrt(size(A, 2));
 end

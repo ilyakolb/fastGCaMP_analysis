@@ -75,7 +75,7 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
 
 t_to_ignore_s = 0.5 # initial seconds to remove to get rid of bleaching artifacts
 pio.templates.default = "plotly_white"
-plot_mat = loadmat(r'..\AP_traces_all_WEBSITE.mat')
+plot_mat = loadmat(r'data/AP_traces_all_WEBSITE.mat')
 
 control_med_med_dff = plot_mat['plot_out'][0,0]['control_med_med_dff'] # [time x nStims]
 hits_med_med_dff = plot_mat['plot_out'][0,0]['hits_med_med_dff'] # [time x nStims x nHits]

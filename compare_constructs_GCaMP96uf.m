@@ -91,9 +91,9 @@ hits = {'10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707
 
 control= '10.641';
 
-alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 1;           % 1 to bleach correct the 1FP traces
+alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+bleachCorrect = 0;           % 1 to bleach correct the 1FP traces
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
@@ -120,9 +120,14 @@ end
 if isempty(whos('mutant'))
     % load latest MAT
     
+    % ALL including best performers + xcamps + 7 (fixed half-decay)
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210203.mat'), 'mutant') 
+    
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE
-    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20201131_GCaMP96uf_analyzed.mat'), 'mutant')
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant') 
+    
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20201131_GCaMP96uf_analyzed.mat'), 'mutant')
         
     % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
     % used for F0 calculations
@@ -200,17 +205,32 @@ if isempty(whos('mutant'))
 
 end
 
-tableVarNames = {'construct', 'nWells', 'df_f_AP_mean', 'df_f_AP_std', 'rise_half_AP_ms_mean', 'rise_half_AP_ms_std', 'rise_full_AP_ms_mean', 'rise_full_AP_ms_std',...
-    'f0_mean', 'f0_std', 'decay_half_med_mean', 'decay_half_med_std', 'SNR', 'SNR_std'};
+tableVarNames = {'construct', 'nWells', 'df_f_AP_mean', 'df_f_AP_std', 'rise_half_AP_s_mean', 'rise_half_AP_s_std', 'rise_full_AP_s_mean', 'rise_full_AP_s_std',...
+    'f0_mean', 'f0_std', 'decay_half_AP_s_mean', 'decay_half_AP_s_std', 'SNR', 'SNR_std'};
 comparisonTable = table('Size', [length(hits)+1 length(tableVarNames)], 'VariableTypes', {'string', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double', 'double'}, ...
     'VariableNames', tableVarNames);
 
+% filter out erroneous decay measurements in 1AP trace (due to low SNR in
+% 2018 data)
+fixDecayConstructs = {'10.641', '10.693'};
+for i = 1:length(fixDecayConstructs)
+    foundMutant = fixDecayConstructs{i};
+    m = find(strcmp({mutant.construct}, foundMutant),1);
+    if isempty(m)
+        continue;
+    end
+    d = mutant(m).decay_half_med(1,:);
+    d(d<0.2) = NaN;
+    mutant(m).decay_half_med(1,:) = d;
+end
 % controlMutant = mutant(find(strcmp({mutant.construct},control)));
 controlMutant = mutant(find(endsWith({mutant.construct},control)));
 
 % number of ROIs for controlMutant and all mutants
 nROI = {};
 nROI{end+1} = controlMutant.nSegment;
+
+
 
 comparisonTable(1,:) = {controlMutant.construct, controlMutant.nreplicate, nanmean(controlMutant.df_fpeak_med(apNumIdx,:)), nanstd(controlMutant.df_fpeak_med(apNumIdx,:)), ...
     nanmean(controlMutant.rise_half_med(apNumIdx,:)), nanstd(controlMutant.rise_half_med(apNumIdx,:)),...
@@ -312,9 +332,9 @@ subplot(1,4,4); xlim([.23 6])
 % Prism options: New Table (column), Enter values calculated elsewhere,
 
 comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f_AP_mean, comparisonTable.df_f_AP_std, comparisonTable.nWells, ...
-    comparisonTable.rise_half_AP_ms_mean, comparisonTable.rise_half_AP_ms_std, comparisonTable.nWells, comparisonTable.rise_full_AP_ms_mean, comparisonTable.rise_full_AP_ms_std, comparisonTable.nWells, ...
-    comparisonTable.decay_half_med_mean, comparisonTable.decay_half_med_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
-writetable(comparisonTable_forPrism, fullfile('D:\ufgcamp_paper_data\culture-APdata-csv\', ['APdata_' APstimNames{apNumIdx} '.csv']))
+    comparisonTable.rise_half_AP_s_mean, comparisonTable.rise_half_AP_s_std, comparisonTable.nWells, comparisonTable.rise_full_AP_s_mean, comparisonTable.rise_full_AP_s_std, comparisonTable.nWells, ...
+    comparisonTable.decay_half_AP_s_mean, comparisonTable.decay_half_AP_s_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
+% writetable(comparisonTable_forPrism, fullfile('D:\ufgcamp_paper_data\culture-APdata-csv\', ['APdata_' APstimNames{apNumIdx} '.csv']))
 % calculate statistics
 disp('STATISTICS')
 disp([num2str(length(mutant)) ' unique constructs']);
@@ -328,8 +348,8 @@ plot_out.control = control;
 plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
 plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
-% save struct for plotting in plotly
-% save('plotting.mat', 'plot_out')
+% save struct for plotting AP traces in plotly
+save('plotly_AP_traces.mat', 'plot_out')
 
-% normPlots
+normPlots
 
