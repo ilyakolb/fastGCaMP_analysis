@@ -6,12 +6,18 @@ clearvars -except good
 clc
 % close all
 
+hits_as_indiv_points = 1; % if 0, hits are plotted as points. if 1, hits plotted as horizontal lines
 rank_by_rounds = 0;
 
-if rank_by_rounds
-    pdf_dir = 'D:\ufgcamp_paper_data\culture-screen-figs\ranked\ranked_constructs_byRound.pdf';
+if hits_as_indiv_points
+    hit_plot_str = '_indivpoints';
 else
-    pdf_dir = 'D:\ufgcamp_paper_data\culture-screen-figs\ranked\ranked_constructs_all.pdf';
+    hit_plot_str = '_horizline';
+end
+if rank_by_rounds
+    pdf_dir = ['D:\ufgcamp_paper_data\culture-screen-figs\ranked\ranked_constructs_byRound' hit_plot_str '.pdf'];
+else
+    pdf_dir = ['D:\ufgcamp_paper_data\culture-screen-figs\ranked\ranked_constructs_all' hit_plot_str '.pdf'];
 end
 base = 'Z:/';
 varNamesToPlot = { 'x1_fp', 'rise_1_fp', 'decay_1_fp', 'timetopeak_1_fp'};
@@ -70,7 +76,7 @@ good_round_4 = getBoundedSubset(good_filt, '500.', 375, 646);
 good_round_5 = getBoundedSubset(good_filt, '500.', 647, 671);
 good_round_6 = getBoundedSubset(good_filt, '500.', 672, 722);
 good_10_controls = getBoundedSubset(good_filt, '10.', 1, 2000); % get all GCaMP controls
-good_XCaMP_controls = getBoundedSubset(good_filt, '538.', 1, 3); % get all GCaMP controls
+good_XCaMP_controls = getBoundedSubset(good_filt, '538.', 1, 3); % get all GCaMP controls + XCaMP
 
 if rank_by_rounds
     all_good_rounds = {good_round_0,good_round_1,good_round_2,good_round_3,good_round_4,good_round_5,good_round_6, good_10_controls, good_XCaMP_controls};
@@ -82,6 +88,8 @@ nRounds = length(all_good_rounds);
 nVars = length(varNamesToPlot);
 f = figure('position', [29          98        1803         880]);
 f.Renderer='Painters';
+
+cMap = getColorMap(length(hits));
 
 startIdx = 0; % x index to start the bar plot
 for j = 1:nRounds
@@ -109,20 +117,38 @@ for j = 1:nRounds
         end
         hold on, bar(bar_idx, tableVar, 1, 'FaceColor', barcolor, 'EdgeColor', barcolor)
         title(varNameTitles{i})
-
+        
         if j == nRounds
             hold on, plot([0 nConstructs], [1 1], 'b-', 'linewidth' ,1)
         end
         % plot markers for control and relevant hits here
+        
         for k = 1:length(hits)
             currentHit = hits{k};
             currentHitIdx = contains(rankedTable.construct, hits{k});
-            scatter(startIdx-1 + find(currentHitIdx), rankedTable(currentHitIdx,:).(currentVarName), 20, [1 0 0], 'filled', 'v');
-            text(startIdx-1 + find(currentHitIdx), ...
-                rankedTable(currentHitIdx,:).(currentVarName), ...
-                ['  ' hits_labels{k}], ...
-                'Rotation', labelAngle,...
-                'FontSize', 10);
+            
+            if sum(currentHitIdx > 0)
+                
+                if hits_as_indiv_points
+                    % hits as individual points
+                    scatter(startIdx-1 + find(currentHitIdx), rankedTable(currentHitIdx,:).(currentVarName), 20, [1 0 0], 'filled', 'v');
+                    
+                    text(startIdx-1 + find(currentHitIdx), ...
+                        rankedTable(currentHitIdx,:).(currentVarName), ...
+                        ['  ' hits_labels{k}], ...
+                        'Rotation', labelAngle,...
+                        'FontSize', 10);
+                else
+                    % hits as horizontal lines
+                    hold on, plot([0 nConstructs], [1, 1] * rankedTable(currentHitIdx,:).(currentVarName), 'color', cMap(k,:), 'linewidth', 1)
+                    text(nConstructs, ...
+                        rankedTable(currentHitIdx,:).(currentVarName), ...
+                        ['  ' hits_labels{k}], ...
+                        'FontSize', 9,...
+                        'color', cMap(k,:));
+                end
+
+            end
         end
     end
     
