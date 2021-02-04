@@ -33,7 +33,7 @@ pio.templates.default = "plotly_white"
 subplot_titles = ['peak dF/F', 'SNR (norm.)', 'half-rise time (norm.)', 'full rise time (norm.)', 'half-decay time (norm.)']
 fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=subplot_titles, x_title='number of action potentials') 
 
-plot_mat = loadmat(r'..\normPlots_WEBSITE.mat')
+plot_mat = loadmat(r'..\plotly_normPlots.mat')
 colorscheme = px.colors.qualitative.Alphabet # 0th: control
 
 nAPs = plot_mat['nAPs'][0]

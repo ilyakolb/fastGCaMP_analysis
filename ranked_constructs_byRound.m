@@ -6,7 +6,7 @@ clearvars -except good
 clc
 % close all
 
-rank_by_rounds = 1;
+rank_by_rounds = 0;
 
 if rank_by_rounds
     pdf_dir = 'D:\ufgcamp_paper_data\culture-screen-figs\ranked\ranked_constructs_byRound.pdf';
@@ -22,7 +22,7 @@ hits_labels = {'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP
 
 labelAngle = 45;
 if isempty(whos('good'))
-    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20200325_GCaMP96uf.xlsx'));
+    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20210203_GCaMP96uf.xlsx'));
 end
 
 switch width(good)
@@ -48,6 +48,8 @@ good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
 good_filt = good_filt(~contains(good_filt.construct, {'TE', 'none'}), :); % remove empty wells
 good_filt = good_filt(good_filt.rise_1_fp > 0, :); % remove oddities
 good_filt = good_filt(good_filt.decay_1_fp > 0.05, :); % decays < 0.05 typically erroneous
+good_filt = good_filt(good_filt.timetopeak_1_fp > 0.05, :); % decays < 0.05 typically erroneous
+good_filt = good_filt(good_filt.timetopeak_1_fp < 3, :); % time to peak > 3 typically erroneous
 % good_filt = good(~contains(good.construct, '410.'), :);
 
 nConstructs = size(good_filt,1);

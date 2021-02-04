@@ -34,12 +34,11 @@ rng('default'); % for reproducibility
 % hits = {};
 
 % bests from 20201131
-hits = {'10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+% hits = {'10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 
 % all hits
-% hits = {'500.456'};
-% hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 % all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
 % hits = {'500.456', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
@@ -98,7 +97,7 @@ Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
 launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
-apNumIdx = 1;                % AP index for  (1, 3, 10, 160) to 
+apNumIdx = 4;                % AP index for  (1, 3, 10, 160) to 
 % plot colors
 % col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
 APstimNames = {'1AP', '3AP', '10AP', '160AP'};
@@ -349,7 +348,7 @@ plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
 plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
 % save struct for plotting AP traces in plotly
-save('plotly_AP_traces.mat', 'plot_out')
+% save('plotly_AP_traces.mat', 'plot_out')
 
-normPlots
+% normPlots
 
