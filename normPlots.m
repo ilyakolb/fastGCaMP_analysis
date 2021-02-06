@@ -7,8 +7,8 @@ saveOn = 0;
 
 saveFolder = 'D:\Dropbox (HHMI)\janelia\writing\jGCaMP8 patent\figures\all\';
 % nAP vs parameter plots (like jGCaMP7 paper)
-nAPs = [1 3 10 160];
-relevantAPs = [1 2 3 4];
+nAPs = [1 2 3 5 10 40];
+relevantAPs = [1 2 3 4 5 6];
 
 % filter only mutants that are in 'hits'
 mutant_hits = controlMutant;
@@ -19,7 +19,7 @@ end
 % original
 % addendum = {' GCaMP6s', '', '', '', '', '', '', '', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 % new
-addendum = {'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP8.712', 'jGCaMP8.543', 'jGCaMP8.707', 'jGCaMP8.455', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
+addendum = {'GCaMP6s', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP8.712', 'jGCaMP8.543', 'jGCaMP8.707', 'jGCaMP8.455', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 % hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 % addendum = {' GCaMP6s', ' jGCaMP7f', ' jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', '', '', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
@@ -214,7 +214,7 @@ if saveOn
 end
 
 % save struct for plotting in plotly
-save('plotly_normPlots.mat', 'normPlots_struct', 'nAPs')
+save('plotly_normPlots_linearity.mat', 'normPlots_struct', 'nAPs')
 %% testing f0
 % mngGECO 1374
 % 6s: 1302.4355±25.5401

@@ -26,7 +26,7 @@ clc
 rng('default'); % for reproducibility
 
 % all hits
-hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits = {'10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 control= '10.641';
 
@@ -40,8 +40,8 @@ launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
 apNumIdx = 4;                % AP index for  (1, 3, 10, 160) to 
 % plot colors
 % col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
-APstimNames = {'1AP', '3AP', '10AP', '160AP'};
-% APstimNames = {'1AP', '2AP', '3AP', '5AP', '10AP', '20AP', '40AP', '160AP'};
+% APstimNames = {'1AP', '3AP', '10AP', '160AP'};
+APstimNames = {'1AP', '2AP', '3AP', '5AP', '10AP', '40AP'};
 
 
 %%
@@ -59,8 +59,12 @@ end
 if isempty(whos('mutant'))
     % load latest MAT
     
+    % linearity experiment (20210202)
+    load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20210202_GCaMP_raw.mat'), 'mutant') 
+    
+    
     % ALL including best performers + xcamps + 7 (fixed half-decay)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210203.mat'), 'mutant') 
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210203.mat'), 'mutant') 
     
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE
@@ -193,10 +197,10 @@ legend(legendWithControl)
 set(gcf,'Visible','on')
 
 % set x and y limits
-subplot(1,4,1); xlim([.23 4.1]); ylim([-0.1471    1.3917])
-subplot(1,4,2); xlim([.23 4.1]); ylim([-0.3724    2.7636])
-subplot(1,4,3); xlim([.23 4.1]); ylim([-1 6.5])
-subplot(1,4,4); xlim([.23 6])
+% subplot(1,4,1); xlim([.23 4.1]); ylim([-0.1471    1.3917])
+% subplot(1,4,2); xlim([.23 4.1]); ylim([-0.3724    2.7636])
+% subplot(1,4,3); xlim([.23 4.1]); ylim([-1 6.5])
+% subplot(1,4,4); xlim([.23 6])
 
 % Table for Prism
 % Format is: {Name, mean, st.err, num samples} for each parameter
