@@ -11,7 +11,6 @@ function [df_f_med_aligned] = align_responses(currentMutant, nStims, debugFlag)
 %     debugFlag: set to 1 to plot a figure of 1AP traces before and after
 %                 alignment
 
-warning('FIX align_responses!')
 trueStimIndex = 201; % make the plots centered on 1-second mark
 imagingDataDir = 'Z:\GECIScreenData\GECI_Imaging_Data';
 % APnumString = '001FP';

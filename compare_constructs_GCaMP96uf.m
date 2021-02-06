@@ -1,16 +1,11 @@
-%% Ultra-fast GCaMP hits analysis
-% NOTES:
-% 10/2/19
-% loads mutants variable from latest data in nearline analysis folder e.g. /Volumes/genie/GENIE_Pipeline/Analysis/Results/pile_all_GCaMP96uf_upto_20190509.mat
-% loads figure comparing all hits
-% calls plotRawCellData to show figure for each well and optionally open Fiji to show raw videos
-% 17/11/19
-% adapting for 8 stim pulses
-% usage:
-% select hits you want to see (e.g. '500.331') and relevant control (e.g. '10.921') in the user params section
-% select max number of wells to plot for each construct (numSampleWells)
-% 
-% plate controls:
+%% jGCaMP8 hits analysis
+% *OUTPUTS* : 
+% * plotly_AP_traces.mat (AP traces for plotting in plotly)
+% * comparisonTable (UNnormalized parameters for each construct), set apNumIdx
+% to control which AP stats get returned 
+% * runs normPlots (to generate plotly_normPlots.mat)
+
+% *plate controls*
 % 10.641 GCaMP6s   : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 K78H T302L R303P D380Y T381R S383T R392G.10.641
 % 10.693 GCaMP6f   : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302L R303P A317E D380Y T381R S383T R392G.10.693
 % 10.921 GCaMP7f  : pGP-SIV-(SalI)-syn-IRES-nls-mCherry-WPRE-GCaMP3 T302L R303P A317L D380Y.10.921
@@ -30,69 +25,14 @@ clc
 
 rng('default'); % for reproducibility
 
-% hits = {'10.921', '500.311', '500.330', '500.333', '500.336', '500.350', '500.378'};
-% hits = {};
-
-% bests from 20201131
-% hits = {'10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
-
-
 % all hits
 hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
-
-% all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-% hits = {'500.456', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
-% hits = {}
-% all variants from best performers + xcamps + 7 series week (pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_raw)
-% substituting 10.641 for variants that are not in this batch as a hacky
-% way to preserve color scheme
-% hits = {'500.456', '10.641', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
-
-% hits = {'10.921', '500.456', '500.686', '500.688', '500.333', '500.640', '500.712', '500.543', '500.707', '500.455'};
-
-% 6th round hits (dff, kinetics)
-%hits = {'10.921', '500.456', '500.640', '500.686', '500.675', '500.676', '500.688'};
-
-% 6th round hits (other params)
-% hits = {'10.921', '500.456', '500.666', '500.543', '500.712'};
-
-
-% 4th round (best 1AP)
-% hits = {'10.921', '500.333', '500.456'};
-
-% 4th round (best other params)
-% hits = {'10.921', '500.333', '500.512', '500.543'};
-
-% XCaMP comparison
-% hits = {'10.921', '10.693', '538.1', '538.2', '538.3', '500.333'};
-
-% XCaMP comparison (compared to our best)
-% hits = {'500.456', '500.640', '538.1', '538.2', '538.3'};
-
-% 5th round (20191125)
-% hits = {'10.921', '500.333', '500.378', '500.668'};
-
-%5th round (20191209, ilastik)
-% hits = {'10.921', '500.333', '500.668', '500.663', '500.649'};
-
-% 5th round (20191118, no 333)
-% hits = {'10.921', '500.668', '500.650', '500.658'};
-
-% abhi's sensors (8 APs)
-% hits = {'10.921', '10.1473', '10.1513', '545.1'}; 
-
-% hits = {'10.641', '500.333', '500.659'};
-% hits = {'10.641'};
-% hits = {'10.921', '500.333', '500.378'}; % hits from newest screen
-% hits = {'500.469', '500.508'  , '500.460', '500.462'}; % hits from 4th round
-%hits = {'10.921', '10.1473', '10.1513', '545.1a', '545.1b', '545.1c', '545.1d'}; % abhi's sensors
-% hits = {'10.641', '500.465', '500.464', '500.455'}; % fast rise, fast decay, high f0 for flies
 
 control= '10.641';
 
 alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
 alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 0;           % 1 to bleach correct the 1FP traces
+bleachCorrect = 1;           % 1 to bleach correct the 1FP traces
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
@@ -135,72 +75,6 @@ if isempty(whos('mutant'))
     % 6th round ONLY with fixed jgcamp7f control
     % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
 
-    % ALL after week 2 of 6th round (updated ilastik parameters)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200308.mat'), 'mutant')
-
-    % ALL after week 2 of 6th round (old ilastik parameters)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200212.mat'), 'mutant')
-
-
-    % 6th round 20200211 (week 2)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200211_GCaMP96uf_raw.mat'), 'mutant')
-    
-    % 6th round 20200205 (week 1)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200205_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % all up to 5th round w/ ilastik
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200128.mat'), 'mutant')
-    
-    % 5th round w/ ilastik
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20191209_GCaMP96uf_raw.mat'), 'mutant')
-    
-    
-    % ufGCaMPs round 1-4 with fixed pixels, Hod's cellfinder (not ilastik)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20191211_OLDCELLFINDER.mat'), 'mutant')
-    
-    % Abhi's sensor from 20191112 (8 AP stims) BUG CORRECTED
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20191112_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % fixed pixels from Yan's 5th round
-    % 20191118 data
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20191118_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % fixed pixels from Yan's 5th round
-    % 20191125 data
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20191125_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    
-    % fixed pixels from Yan's 4th round (combined)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_4thround.mat'), 'mutant')
-    
-    % fixed pixels from Yan's 4th round
-    % 0910 data
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20190910_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % 0903 data
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20190903_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % 0827 data
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20190827_GCaMP96uf_analyzed.mat'), 'mutant')
-
-    % XCaMP from 20190904 analysis
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20190904_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % XCaMP from 10-24 analysis
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20191005_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % XCaMP from 10-28 analysis
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20191022_GCaMP96uf_raw.mat'), 'mutant')
-    
-    % hits from 20190903 (where 456 variant was discovered)
-    % 456 variant is in P5a-20190819_GCaMP96uf
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20190903_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % Abhi's sensor from 20191112 (8 AP stims)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20191112_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % Abhi's sensor from 10-24 analysis
-    %load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20191006_GCaMP96uf_analyzed.mat'), 'mutant')
 
 end
 
