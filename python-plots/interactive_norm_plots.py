@@ -19,9 +19,10 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 import plotly.express as px
 
-plot_subset_for_paper = 1 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
-html_write_dir = r'D:\site\ilyakolb.github.io\interactive_norm_plots.html'
-pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/norm_plots.pdf"
+xaxis_type = 'linear' # 'linear' or 'log'
+plot_subset_for_paper = 0 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
+html_write_dir = r'D:\site\ilyakolb.github.io\interactive_norm_plots_linearity.html'
+pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/norm_plots_linearity.pdf"
 
 
 n_subplots = 6
@@ -33,7 +34,7 @@ pio.templates.default = "plotly_white"
 subplot_titles = ['peak dF/F', 'SNR (norm.)', 'half-rise time (norm.)', 'full rise time (norm.)', 'half-decay time (norm.)']
 fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=subplot_titles, x_title='number of action potentials') 
 
-plot_mat = loadmat(r'..\plotly_normPlots.mat')
+plot_mat = loadmat(r'..\plotly_normPlots_linearity.mat')
 colorscheme = px.colors.qualitative.Alphabet # 0th: control
 
 nAPs = plot_mat['nAPs'][0]
@@ -42,7 +43,7 @@ nAPs = plot_mat['nAPs'][0]
 if plot_subset_for_paper:
     hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'GCaMP6s', 'jGCaMP7f', 'jGCaMP7s', 'XCaMP-Gf']# [h[0] for h in hits[0]]
 else:
-    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
+    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'jGCaMP7f', 'jGCaMP7s', 
                 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
 
 all_norm_plots = plot_mat['normPlots_struct'][0]
@@ -88,7 +89,7 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
         size=14,
     )
 )
-fig.update_xaxes(type="log",
+fig.update_xaxes(type = xaxis_type,
         tickmode = 'array',
         tickvals = nAPs
     )
