@@ -6,7 +6,10 @@ import pandas as pd
 
 # plot average FRAP traces and percent traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
+# show stats
+# export recovery percents as csvs for analysis in prism
 
+save_figs = 0
 
 def load_pkl(name):
     with open(name, 'rb') as f:
@@ -171,13 +174,17 @@ axs[0].set_ylabel('Recovery (%)')
 axs[0].set_xlabel('Time (s)')
 axs[1].set_ylabel('Recovery (%)')
 plt.tight_layout()
+plt.show()
 
 # save figures
-percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
-f.savefig(os.path.join('./analysis/normalized', '405_vs_488_6s.pdf'))
-plt.show()
+if save_figs:
+    percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
+    f.savefig(os.path.join('./analysis/normalized', '405_vs_488_6s.pdf'))
+    
 
 # print stats
 print('recovery percents (mean +/- std')
 for key in percents_405.keys():
-    print(key + '= ' + str(np.array(percents_405[key]).mean()) + ' +/- ' + str(np.array(percents_405[key]).std()))
+    percent_array = np.array(percents_405[key])
+    np.savetxt('./analysis/normalized/recovery_percent_' + key + '.csv', percent_array, delimiter='\n')
+    print(key + '= ' + str(percent_array.mean()) + ' +/- ' + str(percent_array.std()))
