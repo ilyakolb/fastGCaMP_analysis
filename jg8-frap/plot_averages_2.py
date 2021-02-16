@@ -127,7 +127,7 @@ construct_legend.append('604.2 (488 bleach) (n={})'.format(len(percents_488['604
 '''
 axs[0].set_ylabel('Recovery (%)')
 axs[1].set_ylabel('Recovery (%)')
-axs[1].set_xticks(np.arange(0,i+2))
+axs[1].set_xticks(np.arange(0,i+1))
 axs[1].set_xticklabels(construct_legend, rotation = -45, ha="left")
 
 axs[0].legend(construct_legend)
@@ -140,7 +140,7 @@ axs[0].set_xlim([-0.2, 8])
 axs[0].set_xlabel('Time (s)')
 
 plt.tight_layout()
-percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
+
 
 
 
@@ -171,5 +171,13 @@ axs[0].set_ylabel('Recovery (%)')
 axs[0].set_xlabel('Time (s)')
 axs[1].set_ylabel('Recovery (%)')
 plt.tight_layout()
+
+# save figures
+percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
 f.savefig(os.path.join('./analysis/normalized', '405_vs_488_6s.pdf'))
 plt.show()
+
+# print stats
+print('recovery percents (mean +/- std')
+for key in percents_405.keys():
+    print(key + '= ' + str(np.array(percents_405[key]).mean()) + ' +/- ' + str(np.array(percents_405[key]).std()))
