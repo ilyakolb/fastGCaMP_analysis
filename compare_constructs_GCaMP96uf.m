@@ -120,7 +120,7 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7 (fixed half-decay)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210203.mat'), 'mutant') 
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210204.mat'), 'mutant') 
     
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE

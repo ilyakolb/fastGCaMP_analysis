@@ -109,7 +109,7 @@ for i,construct in enumerate(traces_405.keys()):
 
     (mean, std, t) = get_trace_to_plot(traces_array, construct)
     
-    construct_legend.append(construct + '(n={})'.format(len(traces_array)))
+    construct_legend.append(construct + '(n={})'.format(len(percents_405[construct])))
     
     plot_frap_curve(t, mean, std, colors[i], axs[0])
 
