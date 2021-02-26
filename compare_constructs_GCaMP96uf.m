@@ -59,8 +59,14 @@ end
 if isempty(whos('mutant'))
     % load latest MAT
     
+    %linearity experiment (all)
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_mngGECO_upto_20210228.mat'), 'mutant') 
+    
+    % linearity experiment (20210224)
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20210224_GCaMP_raw.mat'), 'mutant') 
+    
     % linearity experiment (20210202)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20210202_GCaMP_raw.mat'), 'mutant') 
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20210202_GCaMP_raw.mat'), 'mutant') 
     
     
     % ALL including best performers + xcamps + 7 (fixed half-decay)
@@ -228,5 +234,5 @@ plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 % save struct for plotting AP traces in plotly
 % save('plotly_AP_traces.mat', 'plot_out')
 
-% normPlots
+normPlots
 
