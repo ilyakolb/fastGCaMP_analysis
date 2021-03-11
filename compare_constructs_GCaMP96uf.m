@@ -97,7 +97,7 @@ Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
 launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
-apNumIdx = 2;                % AP index for  (1, 3, 10, 160) to 
+apNumIdx = 4;                % AP index for  (1, 3, 10, 160) to 
 % plot colors
 % col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
 APstimNames = {'1AP', '3AP', '10AP', '160AP'};
@@ -119,8 +119,8 @@ end
 if isempty(whos('mutant'))
     % load latest MAT
     
-    % ALL including best performers + xcamps + 7 (fixed half-decay)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210204.mat'), 'mutant') 
+    % ALL including best performers + xcamps + 7 (fixed half-decay, half-rise,df/f)
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210311.mat'), 'mutant') 
     
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE
@@ -212,6 +212,8 @@ comparisonTable = table('Size', [length(hits)+1 length(tableVarNames)], 'Variabl
 % filter out erroneous decay measurements in 1AP trace (due to low SNR in
 % 2018 data)
 fixDecayConstructs = {'10.641', '10.693'};
+
+
 for i = 1:length(fixDecayConstructs)
     foundMutant = fixDecayConstructs{i};
     m = find(strcmp({mutant.construct}, foundMutant),1);
@@ -222,31 +224,12 @@ for i = 1:length(fixDecayConstructs)
     % do this for 1AP and 3AP
     for j = [1, 2]
         d = mutant(m).decay_half_med(j,:);
+
         d(d<0.2) = NaN;
         mutant(m).decay_half_med(j,:) = d;
     end
 end
 
-% filter out several erroneous rise measurements
-fixRiseConstructs = {'10.921', '10.693'};
-for i = 1:length(fixRiseConstructs)
-    foundMutant = fixRiseConstructs{i};
-    m = find(strcmp({mutant.construct}, foundMutant),1);
-    if isempty(m)
-        continue;
-    end
-    
-    % do this for 1AP and 3AP
-    for j=[1 2]
-        r1 = mutant(m).rise_half_med(j,:);
-        r2 = mutant(m).timetopeak_med(j,:);
-        r1(r1>0.1) = NaN;
-        r2(r2>0.5) = NaN;
-        
-        mutant(m).rise_half_med(j,:) = r1;
-        mutant(m).timetopeak_med(j,:) = r2;
-    end
-end
 
 % controlMutant = mutant(find(strcmp({mutant.construct},control)));
 controlMutant = mutant(find(endsWith({mutant.construct},control)));
