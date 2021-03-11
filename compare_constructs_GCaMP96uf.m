@@ -97,7 +97,7 @@ Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
 launchFiji = 0;              % 1 to launch Fiji and show every tiff stack
-apNumIdx = 4;                % AP index for  (1, 3, 10, 160) to 
+apNumIdx = 2;                % AP index for  (1, 3, 10, 160) to 
 % plot colors
 % col=['b','r','g','m','c','k', 'b','r','g','m','c','y'];
 APstimNames = {'1AP', '3AP', '10AP', '160AP'};
@@ -218,10 +218,36 @@ for i = 1:length(fixDecayConstructs)
     if isempty(m)
         continue;
     end
-    d = mutant(m).decay_half_med(1,:);
-    d(d<0.2) = NaN;
-    mutant(m).decay_half_med(1,:) = d;
+    
+    % do this for 1AP and 3AP
+    for j = [1, 2]
+        d = mutant(m).decay_half_med(j,:);
+        d(d<0.2) = NaN;
+        mutant(m).decay_half_med(j,:) = d;
+    end
 end
+
+% filter out several erroneous rise measurements
+fixRiseConstructs = {'10.921', '10.693'};
+for i = 1:length(fixRiseConstructs)
+    foundMutant = fixRiseConstructs{i};
+    m = find(strcmp({mutant.construct}, foundMutant),1);
+    if isempty(m)
+        continue;
+    end
+    
+    % do this for 1AP and 3AP
+    for j=[1 2]
+        r1 = mutant(m).rise_half_med(j,:);
+        r2 = mutant(m).timetopeak_med(j,:);
+        r1(r1>0.1) = NaN;
+        r2(r2>0.5) = NaN;
+        
+        mutant(m).rise_half_med(j,:) = r1;
+        mutant(m).timetopeak_med(j,:) = r2;
+    end
+end
+
 % controlMutant = mutant(find(strcmp({mutant.construct},control)));
 controlMutant = mutant(find(endsWith({mutant.construct},control)));
 
@@ -333,7 +359,8 @@ subplot(1,4,4); xlim([.23 6])
 comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f_AP_mean, comparisonTable.df_f_AP_std, comparisonTable.nWells, ...
     comparisonTable.rise_half_AP_s_mean, comparisonTable.rise_half_AP_s_std, comparisonTable.nWells, comparisonTable.rise_full_AP_s_mean, comparisonTable.rise_full_AP_s_std, comparisonTable.nWells, ...
     comparisonTable.decay_half_AP_s_mean, comparisonTable.decay_half_AP_s_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
-% writetable(comparisonTable_forPrism, fullfile('D:\ufgcamp_paper_data\culture-APdata-csv\', ['APdata_' APstimNames{apNumIdx} '.csv']))
+
+writetable(comparisonTable_forPrism, fullfile('csv_out\', ['APdata_' APstimNames{apNumIdx} '.csv']))
 % calculate statistics
 disp('STATISTICS')
 disp([num2str(length(mutant)) ' unique constructs']);
