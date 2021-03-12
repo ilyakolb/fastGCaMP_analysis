@@ -120,7 +120,7 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7 (fixed half-decay, half-rise,df/f)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210311.mat'), 'mutant') 
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210312.mat'), 'mutant') 
     
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE
@@ -358,7 +358,7 @@ plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
 plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
 % save struct for plotting AP traces in plotly
-% save('plotly_AP_traces.mat', 'plot_out')
+save('plotly_AP_traces.mat', 'plot_out')
 
-% normPlots
+normPlots
 

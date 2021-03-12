@@ -94,6 +94,7 @@ df_plt.loc['10dot1473']['bleach'].pop(0) # cell is all over the place
 df_plt.loc['10dot1513']['bleach'].pop(4) # cell fluorescence goes up
 
 
+print('Final values:\n')
 i=1
 # plot mean +/- std for each sensor
 for index, row in df_plt.iterrows():
@@ -106,10 +107,15 @@ for index, row in df_plt.iterrows():
     bleach_mean = np.mean(bleach_nd, axis = 0)
     bleach_std = np.std(bleach_nd, axis = 0)
     # _,ax= plt.subplots()
+    plt.plot(t, np.array(bleach_nd).T, color='gray')
+    '''
     plt.fill_between(t, bleach_mean+bleach_std, bleach_mean-bleach_std, 
                      facecolor="black", # The fill color
                      color='black',       # The outline color
                      alpha=0.2)          # Transparency of the fill)
+    
+    '''
+    
     plt.plot(t, bleach_mean, color='black')
     plt.title(construct_name + ' (n=' + str(np.shape(bleach_nd)[0]) + ')')
     # ax.set_xlabel('Time (s)')
@@ -120,3 +126,5 @@ for index, row in df_plt.iterrows():
     plt.show()
     plt.tight_layout()
     f.savefig(save_fig_dir_pdf + 'photobleaching_' + construct_name + '.pdf')
+    print('{}: {:.2} +/- {:.2}'.format(construct_name, bleach_mean[-1], bleach_std[-1]))
+    

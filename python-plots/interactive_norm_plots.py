@@ -19,10 +19,10 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 import plotly.express as px
 
-plot_subset_for_paper = 1 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
+plot_subset_for_paper = 0 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
 html_write_dir = r'D:\site\ilyakolb.github.io\interactive_norm_plots.html'
 pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/norm_plots.pdf"
-
+plot_mat = loadmat(r'data/plotly_normPlots_WEBSITE.mat')
 
 n_subplots = 6
 n_rows = 2
@@ -33,7 +33,7 @@ pio.templates.default = "plotly_white"
 subplot_titles = ['peak dF/F', 'SNR (norm.)', 'half-rise time (norm.)', 'full rise time (norm.)', 'half-decay time (norm.)']
 fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=subplot_titles, x_title='number of action potentials') 
 
-plot_mat = loadmat(r'..\plotly_normPlots.mat')
+
 colorscheme = px.colors.qualitative.Alphabet # 0th: control
 
 nAPs = plot_mat['nAPs'][0]
