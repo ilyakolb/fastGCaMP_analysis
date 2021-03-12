@@ -37,6 +37,14 @@ control_halfdecay_mean = nanmean(controlMutant.decay_half_med,2);
 decays_not_nan = sum(~isnan(controlMutant.decay_half_med),2);
 control_halfdecay_sterr = nanstd(controlMutant.decay_half_med,0,2)./sqrt(decays_not_nan);
 
+% add control to unnormPlots_singleWells_struct
+unnormPlots_singleWells_struct(1).construct = addendum{1};
+unnormPlots_singleWells_struct(1).df_fpeak_med = controlMutant.df_fpeak_med;
+unnormPlots_singleWells_struct(1).SNR = controlMutant.SNR;
+unnormPlots_singleWells_struct(1).rise_half_med = controlMutant.rise_half_med;
+unnormPlots_singleWells_struct(1).timetopeak_med = controlMutant.timetopeak_med;
+unnormPlots_singleWells_struct(1).decay_half_med_comp = controlMutant.decay_half_med;
+
 % add control to normPlots_struct
 % for control, all means = 1
 normPlots_struct(1).construct = addendum{1};
@@ -84,15 +92,11 @@ for i = 2:length(mutant_hits)
     mutant_dff_sterr = std(plotMutant.df_fpeak_med,0,2)/sqrt(size(plotMutant.df_fpeak_med,2));
     figure(dff_fig); hold on, errorbar(nAPs, mutant_dff_mean, mutant_dff_sterr, 'color', cMap(i-1,:), 'linewidth', 2);
     
-    mutant_SNR_mean = nanmean(plotMutant.SNR,2);
-    mutant_SNR_sterr = nanstd(plotMutant.SNR,0,2) / size(plotMutant.SNR,2);
+    mutant_SNR_mean = double(nanmean(plotMutant.SNR,2));
+    mutant_SNR_sterr = double(nanstd(plotMutant.SNR,0,2)) / size(plotMutant.SNR,2);
     mutant_SNR_mean_norm = mutant_SNR_mean ./ control_SNR_mean;
-    mutant_SNR_sterr_norm = normalized_error(plotMutant.SNR, controlMutant.SNR, 2);
+    mutant_SNR_sterr_norm = normalized_error(double(plotMutant.SNR), controlMutant.SNR, 2);
     
-    % SNR looks weird for 1AP, remove
-    mutant_SNR_sterr(1) = 0;
-    SNR = plotMutant.SNR;
-    % figure, hist(SNR(8,:))
     figure(SNR_fig); hold on, errorbar(nAPs, mutant_SNR_mean_norm, mutant_SNR_sterr_norm, 'color', cMap(i-1,:), 'linewidth', 2);
     
     mutant_halfrise_mean = nanmean(plotMutant.rise_half_med,2);
@@ -133,6 +137,14 @@ for i = 2:length(mutant_hits)
     disp([plotMutant.construct ' SNR'])
     join([string(mutant_SNR_mean(relevantAPs))  string(mutant_SNR_sterr(relevantAPs))], '±')
     
+    % add mutant to unnormPlots_singleWells_struct
+    unnormPlots_singleWells_struct(i).construct = addendum{i};
+    unnormPlots_singleWells_struct(i).df_fpeak_med = plotMutant.df_fpeak_med;
+    unnormPlots_singleWells_struct(i).SNR = plotMutant.SNR;
+    unnormPlots_singleWells_struct(i).rise_half_med = plotMutant.rise_half_med;
+    unnormPlots_singleWells_struct(i).timetopeak_med = plotMutant.timetopeak_med;
+    unnormPlots_singleWells_struct(i).decay_half_med_comp = plotMutant.decay_half_med;
+    
     % add mutant to normPlots_struct
     normPlots_struct(i).construct = addendum{i};
     normPlots_struct(i).dff_mean = mutant_dff_mean;
@@ -145,6 +157,8 @@ for i = 2:length(mutant_hits)
     normPlots_struct(i).timetopeak_sterr_norm = mutant_timetopeak_sterr_norm;
     normPlots_struct(i).halfdecay_mean_norm = mutant_halfdecay_mean_norm;
     normPlots_struct(i).halfdecay_sterr_norm = mutant_halfdecay_sterr_norm;
+    
+
 end
 
 figure(dff_fig); 
@@ -214,7 +228,9 @@ if saveOn
 end
 
 % save struct for plotting in plotly
-save('plotly_normPlots_linearity.mat', 'normPlots_struct', 'nAPs')
+
+save('plotly_normPlots.mat', 'normPlots_struct', 'nAPs')
+save('unnormPlots_singleWells_struct.mat', 'unnormPlots_singleWells_struct')
 %% testing f0
 % mngGECO 1374
 % 6s: 1302.4355±25.5401

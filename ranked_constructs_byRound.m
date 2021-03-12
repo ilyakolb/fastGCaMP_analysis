@@ -8,6 +8,13 @@ clc
 
 hits_as_indiv_points = 1; % if 0, hits are plotted as points. if 1, hits plotted as horizontal lines
 rank_by_rounds = 0;
+saveFig = 0;
+
+min_dff = 0;
+max_rise = 4;
+min_rise = 0.1;
+min_decay = 0.01;
+timetopeak_max = 3;
 
 if hits_as_indiv_points
     hit_plot_str = '_indivpoints';
@@ -49,7 +56,7 @@ cMap = getColorMap(length(hits)); % for hits
 % remove bad stuff here
 good_filt = good;
 
-good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
+% good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
 % good_filt = good_filt(good_filt.x1_fp > 1, :); % > GCaMP6s response
 good_filt = good_filt(~contains(good_filt.construct, {'TE', 'none'}), :); % remove empty wells
 good_filt = good_filt(good_filt.rise_1_fp > 0, :); % remove oddities
@@ -59,6 +66,10 @@ good_filt = good_filt(good_filt.timetopeak_1_fp < 3, :); % time to peak > 3 typi
 % good_filt = good(~contains(good.construct, '410.'), :);
 
 nConstructs = size(good_filt,1);
+
+disp(['Total constructs: ' int2str(height(good))])
+disp(['Filtered constructs: ' int2str(nConstructs)])
+
 
 % sort by screening rounds as follows: 
 % Round 0: 410.1-410.31.         Different peptides
@@ -156,4 +167,6 @@ for j = 1:nRounds
     startIdx = startIdx + nConstructs_round;
 end
 
-print(pdf_dir, '-dpdf', '-fillpage')
+if saveFig
+    print(pdf_dir, '-dpdf', '-fillpage')
+end

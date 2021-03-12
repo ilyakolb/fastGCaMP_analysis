@@ -2,11 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle, os
 import pandas as pd
-
+import seaborn as sns
 
 # plot average FRAP traces and percent traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
+# show stats
+# export recovery percents as csvs for analysis in prism
 
+save_figs = True
+print_and_save_stats = True
 
 def load_pkl(name):
     with open(name, 'rb') as f:
@@ -95,8 +99,9 @@ colors = ['gray', 'darkred', 'blue', 'darkgreen', 'violet']
 construct_legend = []
 percent_fig, axs = plt.subplots(2,1)
 percent_fig.set_size_inches([5.62, 6.85])
-# remove 604.2 (405 stim) from traces_405
+# remove 604.2 (405 stim)
 traces_405.pop('604.2')
+percents_405.pop('604.2')
 
 n_constructs = len(traces_405)
 for i,construct in enumerate(traces_405.keys()):
@@ -104,14 +109,26 @@ for i,construct in enumerate(traces_405.keys()):
 
     (mean, std, t) = get_trace_to_plot(traces_array, construct)
     
-    construct_legend.append(construct + '(n={})'.format(len(traces_array)))
+    construct_legend.append(construct + '(n={})'.format(len(percents_405[construct])))
     
     plot_frap_curve(t, mean, std, colors[i], axs[0])
 
-    percents_construct = percents_405[construct]
-    x = np.arange(1,percents_construct[0].shape[0]+1)
-    (percent_mean, percent_std) = get_mean_std(np.array(percents_construct))
+    percents_construct = np.array(percents_405[construct])
+    (percent_mean, percent_std) = get_mean_std(percents_construct)
     axs[1].bar(i, 100*percent_mean, yerr = 100*percent_std, facecolor = 'white', edgecolor = colors[i])
+    # axs[1] = sns.swarmplot(x = i*np.ones_like(percents_construct.squeeze()), y = 100*percents_construct.squeeze(), color = colors[i])
+
+
+# hack to plot in sns
+percents_405_unarrayed = percents_405.copy()
+for c in percents_405_unarrayed.keys():
+    percents_405_unarrayed[c] = np.array(percents_405_unarrayed[c]).squeeze() * 100
+
+df = pd.DataFrame.from_dict(percents_405_unarrayed, orient='index')
+df['construct'] = df.index
+df['color'] = colors
+df = df.melt(id_vars = ['construct', 'color'])
+sns.swarmplot(x = 'construct', y='value', color= 'color', palette=colors, data=df)
 
 
 # add 604.2 bleached with 488 traces
@@ -127,7 +144,7 @@ construct_legend.append('604.2 (488 bleach) (n={})'.format(len(percents_488['604
 '''
 axs[0].set_ylabel('Recovery (%)')
 axs[1].set_ylabel('Recovery (%)')
-axs[1].set_xticks(np.arange(0,i+2))
+axs[1].set_xticks(np.arange(0,i+1))
 axs[1].set_xticklabels(construct_legend, rotation = -45, ha="left")
 
 axs[0].legend(construct_legend)
@@ -140,7 +157,7 @@ axs[0].set_xlim([-0.2, 8])
 axs[0].set_xlabel('Time (s)')
 
 plt.tight_layout()
-percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
+
 
 
 
@@ -171,5 +188,18 @@ axs[0].set_ylabel('Recovery (%)')
 axs[0].set_xlabel('Time (s)')
 axs[1].set_ylabel('Recovery (%)')
 plt.tight_layout()
-f.savefig(os.path.join('./analysis/normalized', '405_vs_488_6s.pdf'))
 plt.show()
+
+# save figures
+if save_figs:
+    percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
+    f.savefig(os.path.join('./analysis/normalized', '405_vs_488_6s.pdf'))
+    
+
+# print stats
+if print_and_save_stats:
+    print('recovery percents (mean +/- std')
+    for key in percents_405.keys():
+        percent_array = np.array(percents_405[key])
+        np.savetxt('./analysis/normalized/recovery_percent_' + key + '.csv', percent_array, delimiter='\n')
+        print(key + '= ' + str(percent_array.mean()) + ' +/- ' + str(percent_array.std()))

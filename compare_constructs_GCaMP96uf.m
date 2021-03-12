@@ -61,30 +61,6 @@ if isempty(whos('mutant'))
     
     %linearity experiment (all)
     load(fullfile(base,'GECIScreenData\Analysis\pile_all_mngGECO_upto_20210228.mat'), 'mutant') 
-    
-    % linearity experiment (20210224)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20210224_GCaMP_raw.mat'), 'mutant') 
-    
-    % linearity experiment (20210202)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_mngGECO_upto_20210202_GCaMP_raw.mat'), 'mutant') 
-    
-    
-    % ALL including best performers + xcamps + 7 (fixed half-decay)
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210203.mat'), 'mutant') 
-    
-    % ALL including best performers + xcamps + 7
-    % confirmed, validated, DATA ON WEBSITE
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20200325.mat'), 'mutant') 
-    
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20201131_GCaMP96uf_analyzed.mat'), 'mutant')
-        
-    % best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
-    % used for F0 calculations
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200310_GCaMP96uf_analyzed.mat'), 'mutant')
-    
-    % 6th round ONLY with fixed jgcamp7f control
-    % load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20200303_GCaMP96uf_analyzed.mat'), 'mutant')
-
 
 end
 
@@ -96,16 +72,25 @@ comparisonTable = table('Size', [length(hits)+1 length(tableVarNames)], 'Variabl
 % filter out erroneous decay measurements in 1AP trace (due to low SNR in
 % 2018 data)
 fixDecayConstructs = {'10.641', '10.693'};
+
+
 for i = 1:length(fixDecayConstructs)
     foundMutant = fixDecayConstructs{i};
     m = find(strcmp({mutant.construct}, foundMutant),1);
     if isempty(m)
         continue;
     end
-    d = mutant(m).decay_half_med(1,:);
-    d(d<0.2) = NaN;
-    mutant(m).decay_half_med(1,:) = d;
+    
+    % do this for 1AP and 3AP
+    for j = [1, 2]
+        d = mutant(m).decay_half_med(j,:);
+
+        d(d<0.2) = NaN;
+        mutant(m).decay_half_med(j,:) = d;
+    end
 end
+
+
 % controlMutant = mutant(find(strcmp({mutant.construct},control)));
 controlMutant = mutant(find(endsWith({mutant.construct},control)));
 
@@ -217,7 +202,8 @@ set(gcf,'Visible','on')
 comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f_AP_mean, comparisonTable.df_f_AP_std, comparisonTable.nWells, ...
     comparisonTable.rise_half_AP_s_mean, comparisonTable.rise_half_AP_s_std, comparisonTable.nWells, comparisonTable.rise_full_AP_s_mean, comparisonTable.rise_full_AP_s_std, comparisonTable.nWells, ...
     comparisonTable.decay_half_AP_s_mean, comparisonTable.decay_half_AP_s_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
-% writetable(comparisonTable_forPrism, fullfile('D:\ufgcamp_paper_data\culture-APdata-csv\', ['APdata_' APstimNames{apNumIdx} '.csv']))
+
+writetable(comparisonTable_forPrism, fullfile('csv_out\', ['APdata_' APstimNames{apNumIdx} '.csv']))
 % calculate statistics
 disp('STATISTICS')
 disp([num2str(length(mutant)) ' unique constructs']);
@@ -232,7 +218,7 @@ plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
 plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
 % save struct for plotting AP traces in plotly
-% save('plotly_AP_traces.mat', 'plot_out')
+save('plotly_AP_traces.mat', 'plot_out')
 
 normPlots
 

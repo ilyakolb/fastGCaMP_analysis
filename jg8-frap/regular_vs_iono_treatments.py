@@ -43,7 +43,7 @@ def get_trace_to_plot(trace_array):
 
 
 
-save_figs = 1
+save_figs = False
 one_peak = True
 peak_str = '_1peak' if one_peak else ''
 
