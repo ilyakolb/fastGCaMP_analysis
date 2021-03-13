@@ -230,7 +230,7 @@ end
 % save struct for plotting in plotly
 
 save('plotly_normPlots.mat', 'normPlots_struct', 'nAPs')
-save('unnormPlots_singleWells_struct.mat', 'unnormPlots_singleWells_struct')
+save('unnormPlots_singleWells_struct_linearity.mat', 'unnormPlots_singleWells_struct')
 %% testing f0
 % mngGECO 1374
 % 6s: 1302.4355±25.5401

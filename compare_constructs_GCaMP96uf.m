@@ -60,7 +60,7 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     %linearity experiment (all)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_mngGECO_upto_20210228.mat'), 'mutant') 
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_mngGECO_upto_20210313.mat'), 'mutant') 
 
 end
 
