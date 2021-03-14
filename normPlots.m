@@ -231,7 +231,7 @@ end
 
 save('plotly_normPlots.mat', 'normPlots_struct', 'nAPs')
 save('unnormPlots_singleWells_struct_linearity.mat', 'unnormPlots_singleWells_struct')
-%% testing f0
-% mngGECO 1374
-% 6s: 1302.4355±25.5401
-% 7b: 3673
+
+% stats for number of transfection dates, plates
+disp(['Number of unique screening dates: ' int2str(length(unique(controlMutant.date)))])
+disp(['Number of unique plates: ' int2str(length(unique(controlMutant.plate)))])
