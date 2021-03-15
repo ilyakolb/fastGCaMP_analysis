@@ -230,7 +230,16 @@ end
 % save struct for plotting in plotly
 save('plotly_normPlots.mat', 'normPlots_struct', 'nAPs')
 save('unnormPlots_singleWells_struct.mat', 'unnormPlots_singleWells_struct')
-%% testing f0
-% mngGECO 1374
-% 6s: 1302.4355±25.5401
-% 7b: 3673
+
+% stats for number of transfection dates, plates
+disp(['Number of unique screening dates: ' int2str(length(unique(controlMutant.date)))])
+disp(['Number of unique plates: ' int2str(length(unique(controlMutant.plate)))])
+
+% number of cells
+disp('number of cells')
+disp([mutant(1).construct ' ' int2str(sum(mutant(1).nSegment))])
+for m = 1:length(mutant)
+    if any(strcmp(mutant(m).construct, hits))
+        disp([mutant(m).construct ' ' int2str(sum(mutant(m).nSegment))])
+    end
+end

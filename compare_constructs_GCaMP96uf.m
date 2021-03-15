@@ -38,7 +38,7 @@ rng('default'); % for reproducibility
 
 
 % all hits
-hits = {'10.693', '10.921','500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits = {'10.693', '10.921', '500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
 
 % all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
 % hits = {'500.456', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
@@ -120,7 +120,7 @@ if isempty(whos('mutant'))
     % load latest MAT
     
     % ALL including best performers + xcamps + 7 (fixed half-decay, half-rise,df/f)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210312.mat'), 'mutant') 
+    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210320.mat'), 'mutant') 
     
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE
