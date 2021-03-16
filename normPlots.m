@@ -229,9 +229,18 @@ end
 
 % save struct for plotting in plotly
 
-save('plotly_normPlots.mat', 'normPlots_struct', 'nAPs')
+save('plotly_normPlots_linearity.mat', 'normPlots_struct', 'nAPs')
 save('unnormPlots_singleWells_struct_linearity.mat', 'unnormPlots_singleWells_struct')
 
 % stats for number of transfection dates, plates
 disp(['Number of unique screening dates: ' int2str(length(unique(controlMutant.date)))])
 disp(['Number of unique plates: ' int2str(length(unique(controlMutant.plate)))])
+
+% number of cells
+disp('number of wells and cells')
+disp([mutant(1).construct ' ' int2str(sum(mutant(1).nreplicate)) ' | ' int2str(sum(mutant(1).nSegment))])
+for m = 1:length(mutant)
+    if any(strcmp(mutant(m).construct, hits))
+        disp([mutant(m).construct ' '  int2str(sum(mutant(m).nreplicate)) ' | ' int2str(sum(mutant(m).nSegment))])
+    end
+end

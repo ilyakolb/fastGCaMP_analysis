@@ -199,11 +199,11 @@ set(gcf,'Visible','on')
 % open this in Variable explorer, copy, and paste to Prism
 % Prism options: New Table (column), Enter values calculated elsewhere,
 
-comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f_AP_mean, comparisonTable.df_f_AP_std, comparisonTable.nWells, ...
-    comparisonTable.rise_half_AP_s_mean, comparisonTable.rise_half_AP_s_std, comparisonTable.nWells, comparisonTable.rise_full_AP_s_mean, comparisonTable.rise_full_AP_s_std, comparisonTable.nWells, ...
-    comparisonTable.decay_half_AP_s_mean, comparisonTable.decay_half_AP_s_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
-
-writetable(comparisonTable_forPrism, fullfile('csv_out\', ['APdata_' APstimNames{apNumIdx} '.csv']))
+% comparisonTable_forPrism = table(comparisonTable.construct, comparisonTable.df_f_AP_mean, comparisonTable.df_f_AP_std, comparisonTable.nWells, ...
+%     comparisonTable.rise_half_AP_s_mean, comparisonTable.rise_half_AP_s_std, comparisonTable.nWells, comparisonTable.rise_full_AP_s_mean, comparisonTable.rise_full_AP_s_std, comparisonTable.nWells, ...
+%     comparisonTable.decay_half_AP_s_mean, comparisonTable.decay_half_AP_s_std, comparisonTable.nWells, comparisonTable.f0_mean, comparisonTable.f0_std, comparisonTable.nWells);
+% 
+% writetable(comparisonTable_forPrism, fullfile('csv_out\', ['APdata_' APstimNames{apNumIdx} '.csv']))
 % calculate statistics
 disp('STATISTICS')
 disp([num2str(length(mutant)) ' unique constructs']);
@@ -218,7 +218,7 @@ plot_out.hits_med_med_dff_sterr = hits_med_med_dff_sterr;
 plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 
 % save struct for plotting AP traces in plotly
-save('plotly_AP_traces.mat', 'plot_out')
+save('plotly_AP_traces_linearity.mat', 'plot_out')
 
 normPlots
 
