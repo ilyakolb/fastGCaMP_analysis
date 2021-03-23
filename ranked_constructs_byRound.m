@@ -7,8 +7,8 @@ clc
 % close all
 
 hits_as_indiv_points = 1; % if 0, hits are plotted as points. if 1, hits plotted as horizontal lines
-rank_by_rounds = 0;
-saveFig = 0;
+rank_by_rounds = 1;
+saveFig = 1;
 
 min_dff = 0;
 max_rise = 4;
@@ -28,14 +28,14 @@ else
 end
 base = 'Z:/';
 varNamesToPlot = { 'x1_fp', 'rise_1_fp', 'decay_1_fp', 'timetopeak_1_fp'};
-varNameTitles = {'\DeltaF/F (norm.)', 'Rise time (norm.)', 'Decay time (norm.)', 'Peak time (norm.)'};
-hits = {'10.641', '10.693', '10.921', '500.456', '500.686', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
-hits_labels = {'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
+varNameTitles = {'Peak \DeltaF/F (norm.)', 'Half-rise time (norm.)', 'Half-decay time (norm.)', 'Time to peak (norm.)'};
+hits = {'500.456', '500.686', '500.688', '10.641', '10.921', '10.1473', '538.1'};% {'10.641', '10.693', '10.921', '500.456', '500.686', '500.688', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits_labels = {'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'GCaMP6s', 'jGCaMP7f', 'jGCaMP7s', 'XCaMP-Gf'}; % {'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP7s', 'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0'};
 % hits = {'10.921', '500.456', '500.688'};
 
 labelAngle = 45;
 if isempty(whos('good'))
-    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20210203_GCaMP96uf.xlsx'));
+    good = readtable(fullfile(base,'\GECIScreenData\Analysis\data_all_20210320_GCaMP96uf-GC6control.xlsx'));
 end
 
 switch width(good)
@@ -59,10 +59,25 @@ good_filt = good;
 % good_filt = good_filt(good_filt.replicate_number > 2, :); % at least 2 wells
 % good_filt = good_filt(good_filt.x1_fp > 1, :); % > GCaMP6s response
 good_filt = good_filt(~contains(good_filt.construct, {'TE', 'none'}), :); % remove empty wells
-good_filt = good_filt(good_filt.rise_1_fp > 0, :); % remove oddities
-good_filt = good_filt(good_filt.decay_1_fp > 0.05, :); % decays < 0.05 typically erroneous
-good_filt = good_filt(good_filt.timetopeak_1_fp > 0.05, :); % decays < 0.05 typically erroneous
-good_filt = good_filt(good_filt.timetopeak_1_fp < 3, :); % time to peak > 3 typically erroneous
+good_filt = good_filt(good_filt.rise_1_fp < max_rise &...
+    good_filt.rise_3_fp < max_rise &...
+    good_filt.rise_10_fp < max_rise &...
+    good_filt.rise_160_fp < max_rise, :);
+
+good_filt = good_filt(good_filt.rise_1_fp > min_rise &...
+    good_filt.rise_3_fp > min_rise &...
+    good_filt.rise_10_fp > min_rise &...
+    good_filt.rise_160_fp > min_rise, :);
+
+good_filt = good_filt(good_filt.decay_1_fp > min_decay &...
+    good_filt.decay_3_fp > min_decay &...
+good_filt.decay_10_fp > min_decay &...
+good_filt.decay_160_fp > min_decay, :); % decays < 0.05 typically erroneous
+
+good_filt = good_filt(good_filt.timetopeak_1_fp < timetopeak_max &...
+    good_filt.timetopeak_3_fp < timetopeak_max &...
+good_filt.timetopeak10_fp < timetopeak_max &...
+good_filt.timetopeak_160_fp < timetopeak_max, :); % time to peak > 3 typically erroneous
 % good_filt = good(~contains(good.construct, '410.'), :);
 
 nConstructs = size(good_filt,1);
@@ -86,8 +101,8 @@ good_round_3 = getBoundedSubset(good_filt, '500.', 306, 374);
 good_round_4 = getBoundedSubset(good_filt, '500.', 375, 646);
 good_round_5 = getBoundedSubset(good_filt, '500.', 647, 671);
 good_round_6 = getBoundedSubset(good_filt, '500.', 672, 722);
-good_10_controls = getBoundedSubset(good_filt, '10.', 1, 2000); % get all GCaMP controls
-good_XCaMP_controls = getBoundedSubset(good_filt, '538.', 1, 3); % get all GCaMP controls + XCaMP
+good_10_controls = getBoundedSubset(good, '10.', 1, 2000); % get all GCaMP controls
+good_XCaMP_controls = getBoundedSubset(good, '538.', 1, 3); % get all GCaMP controls + XCaMP
 
 if rank_by_rounds
     all_good_rounds = {good_round_0,good_round_1,good_round_2,good_round_3,good_round_4,good_round_5,good_round_6, good_10_controls, good_XCaMP_controls};
