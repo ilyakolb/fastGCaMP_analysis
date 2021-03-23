@@ -144,6 +144,7 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
         family="Arial",
         size=14,
     )
+    height=300
 )
 fig.show()
 
