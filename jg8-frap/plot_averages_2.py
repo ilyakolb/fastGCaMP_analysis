@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle, os
@@ -9,8 +11,21 @@ import seaborn as sns
 # show stats
 # export recovery percents as csvs for analysis in prism
 
-save_figs = True
+save_figs = False
 print_and_save_stats = True
+
+def compute_res_frac(percent_arr):
+    '''
+    
+    compute mean of all points after 1st
+    res fraction = first point - mean of all subsequent points
+    '''
+    res_frac = np.zeros(percent_arr.shape[0])
+    for i,p in enumerate(percent_arr):
+        p_mean = np.mean(p[1:])
+        res_frac[i] = p_mean - p[0] 
+    
+    return res_frac
 
 def load_pkl(name):
     with open(name, 'rb') as f:
@@ -79,9 +94,9 @@ def get_trace_to_plot(trace_array, name):
     '''
     return(traces_norm_mean, traces_norm_std, t)
     
-one_peak = True # load single-peak only (for FRAP curve)
+one_peak = False # load single-peak only (for FRAP curve)
 
-peak_str = '_1peak' if one_peak else ''
+peak_str = '_1peak' if one_peak else '_10peak'
 
 # load 405-bleached data
 traces_405 = load_pkl(r'./analysis/roi_traces_norm_regular_405' + peak_str + '.pkl')
@@ -95,7 +110,8 @@ s_rate = 50
 
 
 plt.close('all')
-colors = ['gray', 'darkred', 'blue', 'darkgreen', 'violet']
+colors = {'10.641': 'gray', '500.686': 'darkred', 
+          '500.688': 'blue', 'EGFP.B-actin': 'darkgreen', 'mEm.Cyto':'violet'}
 construct_legend = []
 percent_fig, axs = plt.subplots(2,1)
 percent_fig.set_size_inches([5.62, 6.85])
@@ -111,11 +127,16 @@ for i,construct in enumerate(traces_405.keys()):
     
     construct_legend.append(construct + '(n={})'.format(len(percents_405[construct])))
     
-    plot_frap_curve(t, mean, std, colors[i], axs[0])
+    # get rid of spontaneous Ca transient
+    if construct == '10.641':
+        # print('m ' + str(mean.argmax()))
+        mean[mean.argmax() + np.arange(0,5)] =np.nan
+        m = mean
+    plot_frap_curve(t, mean, std, colors[construct], axs[0])
 
     percents_construct = np.array(percents_405[construct])
     (percent_mean, percent_std) = get_mean_std(percents_construct)
-    axs[1].bar(i, 100*percent_mean, yerr = 100*percent_std, facecolor = 'white', edgecolor = colors[i])
+    # axs[1].bar(i, 100*percent_mean, yerr = 100*percent_std, facecolor = 'white', edgecolor = colors[i])
     # axs[1] = sns.swarmplot(x = i*np.ones_like(percents_construct.squeeze()), y = 100*percents_construct.squeeze(), color = colors[i])
 
 
@@ -124,15 +145,34 @@ percents_405_unarrayed = percents_405.copy()
 for c in percents_405_unarrayed.keys():
     percents_405_unarrayed[c] = np.array(percents_405_unarrayed[c]).squeeze() * 100
 
-df = pd.DataFrame.from_dict(percents_405_unarrayed, orient='index')
+df = pd.DataFrame.from_dict(percents_405_unarrayed, orient='index', columns=['percent'])
 df['construct'] = df.index
-df['color'] = colors
-df = df.melt(id_vars = ['construct', 'color'])
-sns.swarmplot(x = 'construct', y='value', color= 'color', palette=colors, data=df)
-
-
+# df['color'] = colors
+df['mean percent'] = [compute_res_frac(p) for p in df['percent']]
+df_melted = pd.melt(df['mean percent'].apply(pd.Series).reset_index(), id_vars=['index'],value_name='mean percent').drop('variable', axis=1)
+# df = df.melt(id_vars = ['construct', 'color'])
+sns.swarmplot(x = 'index', 
+              y='mean percent', 
+              color='gray',
+              hue = 'index', 
+              palette=colors, 
+              data=df_melted,
+              order=colors.keys())
+# sns.barplot(x='index', y='mean percent', data=df_melted, facecolor='white', edgecolor='black', linewidth=1.5)
+sns.boxplot(x='index', 
+            y='mean percent', 
+            # hue='index', 
+            data=df_melted, 
+            # palette=colors,
+            color='white',
+            whis=False,
+            showfliers=False,
+            dodge=False,
+            order=colors.keys(),
+            width=0.5)
 # add 604.2 bleached with 488 traces
 
+axs[1].get_legend().remove()
 '''
 (mean, std, t) = get_trace_to_plot(np.array(traces_488['604.2']), '604.2_488stim')
 (percent_mean, percent_std) = get_mean_std(np.array(percents_488['604.2']))
@@ -142,16 +182,18 @@ plot_frap_curve(t, mean, std, colors[i+1], axs[0])
 axs[1].bar(i+1, 100*percent_mean, yerr = 100*percent_std, color='black')
 construct_legend.append('604.2 (488 bleach) (n={})'.format(len(percents_488['604.2'])))
 '''
+
+
 axs[0].set_ylabel('Recovery (%)')
-axs[1].set_ylabel('Recovery (%)')
+axs[1].set_ylabel('Immobile fraction (%)')
 axs[1].set_xticks(np.arange(0,i+1))
-axs[1].set_xticklabels(construct_legend, rotation = -45, ha="left")
+axs[1].set_xticklabels(colors.keys(), rotation = -45, ha="left")
 
 axs[0].legend(construct_legend)
 
 # unity lines
 axs[0].plot(t, 100*np.ones_like(t), 'k--')
-axs[1].plot([0, i+1], [100,100], 'k--')
+axs[1].plot([0, i+1], [0,0], 'k--')
 
 axs[0].set_xlim([-0.2, 8])
 axs[0].set_xlabel('Time (s)')

@@ -96,12 +96,12 @@ solution_condition = 'iono' # 'regular' or 'iono'
 # ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
 all_constructs = ['EGFP.B-actin', 'mEm.Cyto', '604.2', '10.641', '500.688','500.686']
 
-num_peaks_to_plot = 1 # or 10 peaks for FULL
+num_peaks_to_plot = 10 # or 10 peaks for FULL
 length_to_plot = 325
 samples_pre_stim = 20 if bleachlaser_condition == 'stim405' else 30
 peak_thresh = 1 # diff > peak_thresh used to detect stimuli
 plateau_start_idx = 100
-plateau_end_idx = 20 # was 10
+plateau_end_idx = 50 # was 10
 s_rate = 50
 
 # directory of combined data
@@ -180,48 +180,40 @@ for csv_filename in csv_filenames:
     fig_stimavg, ax = plt.subplots(1,1)
     fig.set_figwidth(8)
     percent_change = np.zeros(num_stims)
-    for i,roi in enumerate(all_rois):
+    
+    # for i,roi in enumerate(all_rois):
     
         
-        t_combo = np.arange(-1*samples_pre_stim, length_to_plot)/s_rate
-        # print(t_combo)
-        roi_avg = np.zeros_like(t_combo)
+    t_combo = np.arange(-1*samples_pre_stim, length_to_plot)/s_rate
+    # print(t_combo)
+    roi_avg = np.zeros_like(t_combo)
+    
+    for j in range(num_stims):
+        start_idx = idx_peaks[j]
+        current_roi = roi2[start_idx + np.arange(-1*samples_pre_stim,length_to_plot)]
         
-        for j in range(num_stims):
-            start_idx = idx_peaks[j]
-            current_roi = roi[start_idx + np.arange(-1*samples_pre_stim,length_to_plot)]
-            
-            if i == 0:
-                current_roi = current_roi - plateaus_roi1[j]
-            elif i == 1:
-                # current_roi = rescale(current_roi, np.mean(current_roi[:5]))
-                current_roi = rescale_to1(current_roi, plateaus_roi2[j])
-            elif i == 2:
-                current_roi = current_roi - plateaus_roi3[j]
-#                elif i == 3:
-#                    current_roi = current_roi - plateaus_roi4[j]
-            roi_avg += current_roi
+        current_roi = rescale_to1(current_roi, plateaus_roi2[j])
+        percent_change[j] = np.mean(current_roi[-1*plateau_end_idx:])
+        roi_avg += current_roi
 
-            
-        
-        roi_avg = roi_avg/(j+1)
-        
-        if i == 1:
-            ax.plot(t_combo, np.ones_like(t_combo), 'k--')
-            ax.plot(t_combo, roi_avg, 'r-')
-            ax.set_title('roi ' + str(i+1))
-            ax.set_ylim([-0.5, 1.5])
-            
-            if construct not in all_roi_avg_data.keys():
-                all_roi_avg_data[construct] = []
-            all_roi_avg_data[construct].append(roi_avg)
-            percent_change[j] = np.mean(current_roi[-1*plateau_end_idx:]) # (np.mean(current_roi[-1*plateau_end_idx:]) - plateaus_roi2[j])/plateaus_roi2[j]
-            print(percent_change)
+    roi_avg = roi_avg/(j+1)
+    
+    ax.plot(t_combo, np.ones_like(t_combo), 'k--')
+    ax.plot(t_combo, roi_avg, 'r-')
+    ax.set_title('roi2')
+    ax.set_ylim([-0.5, 1.5])
+    
+    if construct not in all_roi_avg_data.keys():
+        all_roi_avg_data[construct] = []
+    all_roi_avg_data[construct].append(roi_avg)
+
+    # percent_change[j] = (np.mean(current_roi[-1*plateau_end_idx:]) - plateaus_roi2[j])/plateaus_roi2[j]
+    print(percent_change)
 
     # plot plateaus on entire timeseries and save (roi2 only)
-    for i in idx_peaks:
-        current_plateau = plateau(i, roi2)
-        raw_ax.plot(plateau_t(i), current_plateau, 'k-')
+    for idx in idx_peaks:
+        current_plateau = plateau(idx, roi2)
+        raw_ax.plot(plateau_t(idx), current_plateau, 'k-')
             
     # percent change in plateaus (next plateau - current plateau ) / current plateau
     # percent_change = np.diff(plateaus_roi2) / plateaus_roi2[0:-1]
