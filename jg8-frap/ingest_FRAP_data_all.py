@@ -91,17 +91,17 @@ normalize_roi   = True
 keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
 bleachlaser_condition = 'stim405' # 'stim405' or 'stim488'
-solution_condition = 'iono' # 'regular' or 'iono'
+solution_condition = 'regular' # 'regular' or 'iono'
 
 # ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
 all_constructs = ['EGFP.B-actin', 'mEm.Cyto', '604.2', '10.641', '500.688','500.686']
 
-num_peaks_to_plot = 10 # or 10 peaks for FULL
+num_peaks_to_plot = 5 # or 10
 length_to_plot = 325
 samples_pre_stim = 20 if bleachlaser_condition == 'stim405' else 30
 peak_thresh = 1 # diff > peak_thresh used to detect stimuli
 plateau_start_idx = 100
-plateau_end_idx = 50 # was 10
+plateau_end_idx = 90 # was 50
 s_rate = 50
 
 # directory of combined data

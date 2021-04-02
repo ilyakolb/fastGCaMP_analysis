@@ -1,10 +1,15 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib
+from matplotlib import pyplot as plt
 import pickle, os
 from scipy import stats
 from plot_averages_2 import plot_frap_curve
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+import pandas as pd
+from utils import df_from_percent_dict
+import seaborn as sns
 
+matplotlib.rcParams['pdf.fonttype'] = 42
 # plot average FRAP traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
 
@@ -22,7 +27,7 @@ def rescale(_trace, _max):
     _t = _trace * 1/(_max-np.min(_trace))
     return _t - _t[0]# - np.min(_t)
 
-    
+
 def get_trace_to_plot(trace_array):
     (traces_mean, traces_std) = get_mean_std(trace_array)
     min_point_idx = traces_mean.argmin()
@@ -43,9 +48,9 @@ def get_trace_to_plot(trace_array):
 
 
 
-save_figs = False
-one_peak = True
-peak_str = '_1peak' if one_peak else ''
+save_figs = True
+one_peak = False
+peak_str = '_1peak' if one_peak else '_10peak'
 
 traces_regular = load_pkl(r'./analysis/roi_traces_norm_regular_405' + peak_str + '.pkl')
 traces_iono = load_pkl(r'./analysis/roi_traces_norm_iono_405' + peak_str + '.pkl')
@@ -59,27 +64,31 @@ percents_regular_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488' + pe
 
 s_rate = 50
 
-all_constructs = ['10.641', '604.2','500.688','500.686'] # '500.688', '604.2', '500.686'
+all_constructs = ['10.641','500.688','500.686'] # '500.688', '604.2', '500.686'
 
+colors = {'regular': 'gray', 'iono': 'red'}
+
+df_percents_regular = df_from_percent_dict(percents_regular)
+df_percents_regular['exp'] = 'regular'
+df_percents_iono = df_from_percent_dict(percents_iono)
+df_percents_iono['exp'] = 'iono'
+df_percents = pd.concat([df_percents_regular, df_percents_iono])
 for construct in all_constructs:
     
     if construct == '604.2': # if fungal GCaMP, use 488 data
         traces_regular_construct = traces_regular_488[construct]
-        percents_regular_construct = percents_regular_488[construct]
         
     else:
         traces_regular_construct = traces_regular[construct]
-        percents_regular_construct = percents_regular[construct]
 
     
     traces_iono_construct = traces_iono[construct]
-    percents_iono_construct = percents_iono[construct]
     
-    colors = ['gray', 'red']
+    
     construct_legend = ['regular (488 bleach)' if construct == '604.2' else 'regular', 'iono']
     
-    construct_legend[0] += (' (n={})'.format(len(percents_regular_construct)))
-    construct_legend[1] += (' (n={})'.format(len(percents_iono_construct)))
+    construct_legend[0] += (' (n={})'.format(len(traces_regular_construct)))
+    construct_legend[1] += (' (n={})'.format(len(traces_iono_construct)))
     
     f = plt.figure(figsize = [4.5, 4.5])
     f.suptitle(construct)
@@ -101,8 +110,13 @@ for construct in all_constructs:
     iono_std = iono_std[:shortest_length]
     t_iono = t_iono[:shortest_length]
     
-    plot_frap_curve(t_reg, 100*reg_mean, 100*reg_std, colors[0], ax1)
-    plot_frap_curve(t_iono, 100*iono_mean, 100*iono_std, colors[1], ax1)
+    # remove Ca transient
+    if construct == '10.641':
+        reg_mean[reg_mean.argmax() + np.arange(0,5)] =np.nan
+        reg_mean[reg_std.argmax() + np.arange(0,5)] =np.nan
+        
+    plot_frap_curve(t_reg, 100*reg_mean, 100*reg_std, colors['regular'], ax1)
+    plot_frap_curve(t_iono, 100*iono_mean, 100*iono_std, colors['iono'], ax1)
     ax1.legend(construct_legend)
     ax1.plot(t, 100*np.ones_like(t), 'k--')
     
@@ -111,23 +125,39 @@ for construct in all_constructs:
     
     
     # percent change bar plots    
-    ax2 = inset_axes(ax1, width="30%", height="40%", loc=4, borderpad=1)
-    x = np.arange(1,percents_regular_construct[0].shape[0]+1)
-    percents_regular_single_construct  = np.array(percents_regular_construct)
-    percents_iono_single_construct = np.array(percents_iono_construct)
-    (_,pval) = stats.ttest_ind(percents_regular_single_construct, percents_iono_single_construct, equal_var = False)
-    print(construct + ': regular vs iono: p = ' + str(pval))
-    (percent_reg_mean, percent_reg_std) = get_mean_std(percents_regular_single_construct)
-    (percent_iono_mean, percent_iono_std) = get_mean_std(percents_iono_single_construct)
-    ax2.bar(0, 100*percent_reg_mean, yerr = 100*percent_reg_std, facecolor='white', edgecolor = colors[0])
-    ax2.bar(1, 100*percent_iono_mean, yerr = 100*percent_iono_std, facecolor='white', edgecolor = colors[1])
-    # plt.errorbar(x, 100*percent_reg_mean, 100*percent_reg_std, color=colors[0])
-    # plt.errorbar(x, 100*percent_iono_mean, 100*percent_iono_std, color=colors[1])
-    ax2.set_xticks([0,1])
-    ax2.set_xticklabels([])
-    ax2.set_ylabel('Recovery (%)')
-    # plt.tight_layout()
+    ax2 = inset_axes(ax1, width="30%", height="40%", loc=4, borderpad=3)
     
+    df_barplot = df_percents[df_percents['index']==construct]
+
+    sns.swarmplot(x = 'exp', 
+              y='mean percent', 
+              color='black',
+              data=df_barplot,
+              order=colors.keys())
+    
+    sns.boxplot(x='exp', 
+                y='mean percent', 
+                data=df_barplot, 
+                # palette=colors,
+                color='white',
+                whis=False,
+                showfliers=False,
+                dodge=False,
+                hue='exp',
+                palette=colors,
+                order=colors.keys(),
+                width=0.5)
+    
+    
+    
+    ax2.set_xlabel(None)
+    ax2.set_ylim([-1,5])
+    ax2.set_ylabel('Immobile fraction (%)')
+    # plt.tight_layout()
+    ax2.get_legend().remove()
+    # stats
+    (_,pval) = stats.ttest_ind(df_barplot[df_barplot['exp'] == 'regular']['mean percent'], df_barplot[df_barplot['exp'] == 'iono']['mean percent'], equal_var = False, nan_policy='omit')
+    print(construct + ': regular vs iono: p = ' + str(pval))
     if save_figs:
         f.savefig(os.path.join('./analysis/normalized', 'iono_' + construct + '.pdf'))
 

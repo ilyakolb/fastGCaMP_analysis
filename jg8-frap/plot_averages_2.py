@@ -5,27 +5,18 @@ import matplotlib.pyplot as plt
 import pickle, os
 import pandas as pd
 import seaborn as sns
+from utils import df_from_percent_dict
+import scipy.stats as ss
+import scikit_posthocs as sp
 
 # plot average FRAP traces and percent traces of all sensors
 # takes in roi_trace dict pkls from ingest_FRAP_data_exp2.py
 # show stats
 # export recovery percents as csvs for analysis in prism
 
-save_figs = False
+save_figs = True
 print_and_save_stats = True
 
-def compute_res_frac(percent_arr):
-    '''
-    
-    compute mean of all points after 1st
-    res fraction = first point - mean of all subsequent points
-    '''
-    res_frac = np.zeros(percent_arr.shape[0])
-    for i,p in enumerate(percent_arr):
-        p_mean = np.mean(p[1:])
-        res_frac[i] = p_mean - p[0] 
-    
-    return res_frac
 
 def load_pkl(name):
     with open(name, 'rb') as f:
@@ -96,15 +87,15 @@ def get_trace_to_plot(trace_array, name):
     
 one_peak = False # load single-peak only (for FRAP curve)
 
-peak_str = '_1peak' if one_peak else '_10peak'
+peak_str = '_1peak' if one_peak else '_5peak'
 
 # load 405-bleached data
 traces_405 = load_pkl(r'./analysis/roi_traces_norm_regular_405' + peak_str + '.pkl')
 percents_405 = load_pkl(r'./analysis/plateau_data_norm_regular_405' + peak_str + '.pkl')
 
 # load 488-bleached data
-traces_488 = load_pkl(r'./analysis/roi_traces_norm_regular_488' + peak_str + '.pkl')
-percents_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488' + peak_str + '.pkl')
+# traces_488 = load_pkl(r'./analysis/roi_traces_norm_regular_488' + peak_str + '.pkl')
+# percents_488 = load_pkl(r'./analysis/plateau_data_norm_regular_488' + peak_str + '.pkl')
 
 s_rate = 50
 
@@ -131,7 +122,7 @@ for i,construct in enumerate(traces_405.keys()):
     if construct == '10.641':
         # print('m ' + str(mean.argmax()))
         mean[mean.argmax() + np.arange(0,5)] =np.nan
-        m = mean
+
     plot_frap_curve(t, mean, std, colors[construct], axs[0])
 
     percents_construct = np.array(percents_405[construct])
@@ -140,17 +131,10 @@ for i,construct in enumerate(traces_405.keys()):
     # axs[1] = sns.swarmplot(x = i*np.ones_like(percents_construct.squeeze()), y = 100*percents_construct.squeeze(), color = colors[i])
 
 
-# hack to plot in sns
-percents_405_unarrayed = percents_405.copy()
-for c in percents_405_unarrayed.keys():
-    percents_405_unarrayed[c] = np.array(percents_405_unarrayed[c]).squeeze() * 100
 
-df = pd.DataFrame.from_dict(percents_405_unarrayed, orient='index', columns=['percent'])
-df['construct'] = df.index
-# df['color'] = colors
-df['mean percent'] = [compute_res_frac(p) for p in df['percent']]
-df_melted = pd.melt(df['mean percent'].apply(pd.Series).reset_index(), id_vars=['index'],value_name='mean percent').drop('variable', axis=1)
-# df = df.melt(id_vars = ['construct', 'color'])
+df_melted = df_from_percent_dict(percents_405)
+
+
 sns.swarmplot(x = 'index', 
               y='mean percent', 
               color='gray',
@@ -201,47 +185,24 @@ axs[0].set_xlabel('Time (s)')
 plt.tight_layout()
 
 
-
-
-### 405 vs 488 comparison of 10.641
-f, axs = plt.subplots(2,1)
-f.set_size_inches([4.99, 6.56])
-
-(mean, std, t) = get_trace_to_plot(np.array(traces_405['10.641']), '10.641')
-(percent_mean_405, percent_std_405) = get_mean_std(np.array(percents_405['10.641']))
-plot_frap_curve(t, mean, std, 'darkviolet', axs[0])
-# axs[0].plot(t, mean, color = 'darkviolet')
-# axs[0].fill_between(t, mean + std, mean - std, facecolor='darkviolet', color='darkviolet', alpha=0.2)
-axs[1].bar(0, 100*percent_mean_405, yerr=100*percent_std_405, color='darkviolet')
-construct_legend = ['10.641 (405 bleach) (n={})'.format(len(percent_std_405))]
-
-
-(mean, std, t) = get_trace_to_plot(np.array(traces_488['10.641']), '10.641_488stim')
-(percent_mean_488, percent_std_488) = get_mean_std(np.array(percents_488['10.641']))
-plot_frap_curve(t, mean, std, 'cyan', axs[0])
-# axs[0].plot(t, mean, color = 'cyan')
-# axs[0].fill_between(t, mean + std, mean - std, facecolor='cyan', color='cyan', alpha=0.2)
-axs[1].bar(1, 100*percent_mean_488, yerr=100*percent_std_488, color='cyan')
-axs[1].set_xticks([0,1])
-construct_legend = ['10.641 (405 bleach) (n={})'.format(len(traces_405['10.641'])), '10.641 (488 bleach) (n={})'.format(len(traces_488['10.641']))]
-axs[0].legend(construct_legend)
-axs[1].set_xticklabels(construct_legend, rotation = -45, ha="left")
-axs[0].set_ylabel('Recovery (%)')
-axs[0].set_xlabel('Time (s)')
-axs[1].set_ylabel('Recovery (%)')
-plt.tight_layout()
-plt.show()
-
 # save figures
 if save_figs:
     percent_fig.savefig(os.path.join('./analysis/normalized', 'percent_change.pdf'))
-    f.savefig(os.path.join('./analysis/normalized', '405_vs_488_6s.pdf'))
     
 
 # print stats
 if print_and_save_stats:
-    print('recovery percents (mean +/- std')
-    for key in percents_405.keys():
-        percent_array = np.array(percents_405[key])
-        np.savetxt('./analysis/normalized/recovery_percent_' + key + '.csv', percent_array, delimiter='\n')
-        print(key + '= ' + str(percent_array.mean()) + ' +/- ' + str(percent_array.std()))
+    [_,p] = ss.kruskal(*df_melted.groupby('index')['mean percent'].agg(list), nan_policy='omit')
+    print('MEANS')
+    df_melted.groupby('index')['mean percent'].mean()
+    print('STDs')
+    df_melted.groupby('index')['mean percent'].std()
+    print('KW test: p = {:4f}'.format(p))
+    pval_table = sp.posthoc_dunn(df_melted, val_col = 'mean percent', group_col='index', p_adjust ='bonferroni')
+    print(pval_table)
+    
+    for c_id in df_melted['index'].unique():
+        percent_array = df_melted[df_melted['index'] == c_id]['mean percent']# np.array(percents_405[key])
+        np.savetxt('./analysis/normalized/recovery_percent_' + c_id + '.csv', percent_array, delimiter='\n')
+        # print(key + '= ' + str(percent_array.mean()) + ' +/- ' + str(percent_array.std()))
+    
