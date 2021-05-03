@@ -85,16 +85,16 @@ def decode_filename(fname):
 
 plt.close('all')
 
-save_figs       = True
-save_data       = True
+save_figs       = False
+save_data       = False
 normalize_roi   = True
-keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
+keep_figs_open  = True # True to keep all generated figures open. Memory errors if too many open
 
 bleachlaser_condition = 'stim405' # 'stim405' or 'stim488'
 solution_condition = 'regular' # 'regular' or 'iono'
 
 # ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
-all_constructs = ['EGFP.B-actin', 'mEm.Cyto', '604.2', '10.641', '500.688','500.686']
+all_constructs = ['EGFP.B-actin'] # , 'mEm.Cyto', '604.2', '10.641', '500.688','500.686'
 
 num_peaks_to_plot = 5 # or 10
 length_to_plot = 325
@@ -105,10 +105,10 @@ plateau_end_idx = 90 # was 50
 s_rate = 50
 
 # directory of combined data
-combo_dir = r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\combined' 
+combo_dir = r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\combined' # r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\exp6_20210501'#  
 csv_filenames_all = os.listdir(combo_dir)
 
-findmatches = lambda x: any([1 for c in all_constructs if c in x]) and solution_condition in x and bleachlaser_condition in x
+findmatches = lambda x: any([1 for c in all_constructs if c in x]) and solution_condition in x and bleachlaser_condition in x and ('.csv' in x)
 
 csv_filenames = list(filter(findmatches, csv_filenames_all))
 
