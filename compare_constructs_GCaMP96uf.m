@@ -38,7 +38,7 @@ rng('default'); % for reproducibility
 
 
 % all hits
-hits = {'10.693', '10.921', '500.456', '500.686', '500.688', '500.712', '500.543', '500.707', '500.455', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
+hits = {'514.1', '514.1722', '514.4409', '514.4445', '10.921', '515.2', '515.3', '515.4'};
 
 % all variants from 3-5-20 PPT slide except 640 + best performers + xcamps + 7 series (loaner + our camera, EM gain 25)
 % hits = {'500.456', '500.688', '500.712', '500.543', '500.707', '500.455', '10.921', '10.1473', '10.1513', '10.1561', '538.1', '538.2', '538.3'};
@@ -90,9 +90,9 @@ hits = {'10.693', '10.921', '500.456', '500.686', '500.688', '500.712', '500.543
 
 control= '10.641';
 
-alignControlToStimPulse = 0; % 1 to correct for stim pulse timing variability in controls. takes longer time
-alignMutantToStimPulse = 0;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
-bleachCorrect = 0;           % 1 to bleach correct the 1FP traces
+alignControlToStimPulse = 1; % 1 to correct for stim pulse timing variability in controls. takes longer time
+alignMutantToStimPulse = 1;  % 1 to correct for stim pulse timing variability in mutants. takes longer time 
+bleachCorrect = 1;           % 1 to bleach correct the 1FP traces
 Fs = 200;                    % sampling rate (Hz) assuming GCaMPuf
 plotRaw = 0;                 % 1 to plot raw well figures
 numSampleWells =10;           % number of sample wells to plot
@@ -119,8 +119,11 @@ end
 if isempty(whos('mutant'))
     % load latest MAT
     
+    % gaba-glu-gcamp
+    load(fullfile(base,'GECIScreenData\Analysis\pile_week_GCaMP96uf_upto_20210426_Glu_GABA_GCaMP_raw.mat'), 'mutant') 
+    
     % ALL including best performers + xcamps + 7 (fixed half-decay, half-rise,df/f)
-    load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210320.mat'), 'mutant') 
+    % load(fullfile(base,'GECIScreenData\Analysis\pile_all_GCaMP96uf_upto_20210320.mat'), 'mutant') 
     
     % ALL including best performers + xcamps + 7
     % confirmed, validated, DATA ON WEBSITE
@@ -256,9 +259,10 @@ end
 time=(1:size(control_df_f_med,1))/Fs;%;%1/35:1/35:249/35;
 control_df_f_med_mean=nanmean(control_df_f_med,3);
 
-% bleach correct only 1FP trace!
+% bleach correct only 1FP and 3FP trace!
 if bleachCorrect
      control_df_f_med_mean(:,1) = bleachCorr(time,control_df_f_med_mean(:,1));
+     control_df_f_med_mean(:,2) = bleachCorr(time,control_df_f_med_mean(:,2));
 end
 
 control_med_med_dff_sterr=std(control_df_f_med,0,3)/sqrt(size(control_df_f_med,3));
@@ -360,5 +364,5 @@ plot_out.control_med_med_dff_sterr = control_med_med_dff_sterr;
 % save struct for plotting AP traces in plotly
 save('plotly_AP_traces.mat', 'plot_out')
 
-normPlots
+% normPlots
 
