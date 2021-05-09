@@ -16,8 +16,8 @@ import plotly.express as px
 
 
 plot_subset_for_paper = 1 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
-html_write_dir = r'D:\site\ilyakolb.github.io\interactive_AP_traces.html'
-pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/AP_plots.pdf"
+html_write_dir = r'D:\site\ilyakolb.github.io\interactive_AP_traces_gaba.html'
+pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/AP_plots_gaba.pdf"
 
 def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_label):
     '''
@@ -75,7 +75,7 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
 
 t_to_ignore_s = 0.5 # initial seconds to remove to get rid of bleaching artifacts
 pio.templates.default = "plotly_white"
-plot_mat = loadmat(r'data/plotly_AP_traces_WEBSITE.mat')
+plot_mat = loadmat(r'data/plotly_AP_traces_gaba.mat')
 
 control_med_med_dff = plot_mat['plot_out'][0,0]['control_med_med_dff'] # [time x nStims]
 hits_med_med_dff = plot_mat['plot_out'][0,0]['hits_med_med_dff'] # [time x nStims x nHits]
@@ -99,7 +99,9 @@ control_med_med_dff_sterr = control_med_med_dff_sterr[t_to_ignore_samples:-1*t_t
 hits_med_med_dff_sterr = hits_med_med_dff_sterr[t_to_ignore_samples:-1*t_to_ignore_samples,]
 
 # mapping between construct IDs and names
-mapping = {'GCaMP6s': '10.641' , 'jGCaMP8f': '500.456', 'jGCaMP8m': '500.686', 'jGCaMP8s': '500.688','jGCaMP8.712': '500.712', 'GCaMP6f': '10.693', 'jGCaMP7f': '10.921', 'jGCaMP7s': '10.1473', 'jGCaMP7c': '10.1513', 'jGCaMP7b': '10.1561', 'XCaMP-Gf': '538.1', 'XCaMP-G': '538.2', 'XCaMP-Gf0': '538.3'} # [h[0] for h in hits[0]]
+mapping_inv = {'514.1':'iGABASnFR', '514.1722':'iGABASnFR.F102G', '514.4409':'iGABASnFR2', '514.4445':'iGABASnFR2n', '10.641':'GCaMP6s', '10.921':'jGCaMP7f', '515.2':'iGluSnFR.S72A.A184V', '515.3':'iGluSnFR.A184S', '515.4':'iGluSnFR.A184V'
+}
+mapping = {v:k for k,v in mapping_inv.items()}
 
 control_label= 'GCaMP6s'
 # hits_label = ['GCaMP6f', 'jGCaMP7f', 'jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'jGCaMP8.712', 
@@ -107,10 +109,9 @@ control_label= 'GCaMP6s'
 
 # labels and order of legend
 if plot_subset_for_paper:
-    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s', 'GCaMP6s', 'jGCaMP7f', 'jGCaMP7s', 'XCaMP-Gf']# [h[0] for h in hits[0]]
+    hits_label = mapping.keys()
 else:
-    hits_label = ['jGCaMP8f', 'jGCaMP8m', 'jGCaMP8s','jGCaMP8.712', 'GCaMP6s', 'GCaMP6f', 'jGCaMP7f', 'jGCaMP7s', 
-                'jGCaMP7c', 'jGCaMP7b', 'XCaMP-Gf', 'XCaMP-G', 'XCaMP-Gf0']# [h[0] for h in hits[0]]
+    hits_label = mapping.keys()
 
 n_stims = control_med_med_dff.shape[1]
 n_hits = hits_med_med_dff.shape[2]
@@ -143,8 +144,9 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
     font=dict(
         family="Arial",
         size=14,
-    )
-    height=300
+        
+    ),
+    height=800
 )
 fig.show()
 
