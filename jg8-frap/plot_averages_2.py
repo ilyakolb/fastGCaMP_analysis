@@ -153,7 +153,7 @@ sns.boxplot(x='index',
             data=df_melted, 
             # palette=colors,
             color='white',
-            whis=False,
+            whis=1.5,
             showfliers=False,
             dodge=False,
             order=colors.keys(),
@@ -177,13 +177,13 @@ axs[1].set_ylabel('Immobile fraction (%)')
 axs[1].set_xticks(np.arange(0,i+1))
 axs[1].set_xticklabels(colors.keys(), rotation = -45, ha="left")
 
-axs[0].legend(construct_legend)
+# axs[0].legend(construct_legend)
 
 # unity lines
-# axs[0].plot(t, 100*np.ones_like(t), 'k--')
+axs[0].plot(t, 100*np.ones_like(t), 'k--')
 axs[1].plot([0, i+1], [0,0], 'k--')
 
-axs[0].set_xlim([-0.2, 8])
+axs[0].set_xlim([-0.2, 2])
 axs[0].set_xlabel('Time (s)')
 
 plt.tight_layout()

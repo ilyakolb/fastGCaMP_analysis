@@ -121,6 +121,7 @@ for construct in all_constructs:
     ax1.plot(t, 100*np.ones_like(t), 'k--')
     
     plt.ylim([80, 105])
+    plt.xlim([-0.2, 2])
     ax1.set_xlabel('Time (s)')
     
     
@@ -140,7 +141,7 @@ for construct in all_constructs:
                 data=df_barplot, 
                 # palette=colors,
                 color='white',
-                whis=False,
+                whis=1.5,
                 showfliers=False,
                 dodge=False,
                 hue='exp',
