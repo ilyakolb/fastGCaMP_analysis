@@ -85,30 +85,31 @@ def decode_filename(fname):
 
 plt.close('all')
 
-save_figs       = False
-save_data       = False
+save_figs       = True
+save_data       = True
 normalize_roi   = True
-keep_figs_open  = True # True to keep all generated figures open. Memory errors if too many open
+keep_figs_open  = False # True to keep all generated figures open. Memory errors if too many open
 
 bleachlaser_condition = 'stim405' # 'stim405' or 'stim488'
 solution_condition = 'regular' # 'regular' or 'iono'
 
 # ['604.2', '10.641'] # ['604.2', '10.641', '500.688','500.686']
-all_constructs = ['EGFP.B-actin'] # , 'mEm.Cyto', '604.2', '10.641', '500.688','500.686'
+all_constructs = ['EGFP.B-actin' , 'mEm.Cyto', '604.2', '10.641', '500.688','500.686']
+
+length_to_plot_s = 6.5
+seconds_pre_stim = 0.4
+plateau_start_sec = 2
+plateau_end_sec = 1.5
 
 num_peaks_to_plot = 5 # or 10
-length_to_plot = 325
-samples_pre_stim = 20 if bleachlaser_condition == 'stim405' else 30
 peak_thresh = 1 # diff > peak_thresh used to detect stimuli
-plateau_start_idx = 100
-plateau_end_idx = 90 # was 50
-s_rate = 50
+# s_rate = 25# was 50
 
 # directory of combined data
-combo_dir = r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\combined' # r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\exp6_20210501'#  
+combo_dir = r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\combined' # r'Z:\ilya\code\fastGCaMP_analysis\jg8-frap\data\exp7_20210511' #  #
 csv_filenames_all = os.listdir(combo_dir)
 
-findmatches = lambda x: any([1 for c in all_constructs if c in x]) and solution_condition in x and bleachlaser_condition in x and ('.csv' in x)
+findmatches = lambda x: any([1 for c in all_constructs if c in x]) and solution_condition in x and bleachlaser_condition in x and (x.endswith('.csv'))
 
 csv_filenames = list(filter(findmatches, csv_filenames_all))
 
@@ -127,8 +128,19 @@ for csv_filename in csv_filenames:
     # all_roi_avg_data[construct] = []
     data = pd.read_csv(os.path.join(combo_dir, csv_filename)) 
     t = data['Time [s]']
-
-    roi1 = data['#1 (CSU (488))'].values
+    
+    # get constants
+    s_rate = int(1/(t[1]-t[0]))
+    length_to_plot = int(length_to_plot_s*s_rate) # was 325
+    samples_pre_stim = int(seconds_pre_stim*s_rate if bleachlaser_condition == 'stim405' else 3/2*seconds_pre_stim*s_rate) # was 20
+    plateau_start_idx = int(plateau_start_sec*s_rate) # was 100
+    plateau_end_idx = int(plateau_end_sec*s_rate)
+    
+    # exp7_20210511 data does not have #1 channel 
+    if '#1 (CSU (488))' not in data.keys():
+        roi1=np.zeros_like(t)
+    else:
+        roi1 = data['#1 (CSU (488))'].values
     roi2 = data['#2 (CSU (488))'].values
     roi3 = data['#3 (CSU (488))'].values
     # roi4 = data['#4 ( 1)'].values
@@ -205,6 +217,14 @@ for csv_filename in csv_filenames:
     
     if construct not in all_roi_avg_data.keys():
         all_roi_avg_data[construct] = []
+    
+    '''
+    a subset of EGFP.B-actin recordings are recorded at 25 Hz (~1/2 of normal 50 Hz)
+    for those, interpolate to match 50 Hz rate
+    '''
+    if roi_avg.size == 172:
+        roi_avg = np.interp(np.arange(0,345), np.arange(0,344,2), roi_avg)
+        print('Encountered low-sampling rate recording: upsampling...')
     all_roi_avg_data[construct].append(roi_avg)
 
     # percent_change[j] = (np.mean(current_roi[-1*plateau_end_idx:]) - plateaus_roi2[j])/plateaus_roi2[j]

@@ -112,8 +112,12 @@ percents_405.pop('604.2')
 
 n_constructs = len(traces_405)
 for i,construct in enumerate(traces_405.keys()):
+
+
     traces_array = np.array(traces_405[construct])
 
+    # plotting
+    
     (mean, std, t) = get_trace_to_plot(traces_array, construct)
     
     construct_legend.append(construct + '(n={})'.format(len(percents_405[construct])))
@@ -124,7 +128,7 @@ for i,construct in enumerate(traces_405.keys()):
         mean[mean.argmax() + np.arange(0,5)] =np.nan
 
     plot_frap_curve(t, mean, std, colors[construct], axs[0])
-
+    
     percents_construct = np.array(percents_405[construct])
     (percent_mean, percent_std) = get_mean_std(percents_construct)
     # axs[1].bar(i, 100*percent_mean, yerr = 100*percent_std, facecolor = 'white', edgecolor = colors[i])
@@ -176,7 +180,7 @@ axs[1].set_xticklabels(colors.keys(), rotation = -45, ha="left")
 axs[0].legend(construct_legend)
 
 # unity lines
-axs[0].plot(t, 100*np.ones_like(t), 'k--')
+# axs[0].plot(t, 100*np.ones_like(t), 'k--')
 axs[1].plot([0, i+1], [0,0], 'k--')
 
 axs[0].set_xlim([-0.2, 8])
@@ -192,15 +196,20 @@ if save_figs:
 
 # print stats
 if print_and_save_stats:
+    
+    # stats -- do not use, use prism instead
+    '''
     [_,p] = ss.kruskal(*df_melted.groupby('index')['mean percent'].agg(list), nan_policy='omit')
     print('MEANS')
     df_melted.groupby('index')['mean percent'].mean()
     print('STDs')
     df_melted.groupby('index')['mean percent'].std()
     print('KW test: p = {:4f}'.format(p))
-    pval_table = sp.posthoc_dunn(df_melted, val_col = 'mean percent', group_col='index', p_adjust ='bonferroni')
+    pval_table = sp.posthoc_dunn(df_melted, val_col = 'mean percent', group_col='index')
     print(pval_table)
+    '''
     
+    # write csvs to be read by prism
     for c_id in df_melted['index'].unique():
         percent_array = df_melted[df_melted['index'] == c_id]['mean percent']# np.array(percents_405[key])
         np.savetxt('./analysis/normalized/recovery_percent_' + c_id + '.csv', percent_array, delimiter='\n')
