@@ -16,8 +16,8 @@ import plotly.express as px
 
 
 plot_subset_for_paper = 1 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
-html_write_dir = r'D:\site\ilyakolb.github.io\interactive_AP_traces.html'
-pdf_dir = r"D:\ufgcamp_paper_data\culture-screen-figs/AP_plots.pdf"
+html_write_dir = r'./figs/interactive_AP_traces.html'
+pdf_dir = r"./figs/AP_plots.pdf"
 
 def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_label):
     '''
@@ -115,24 +115,26 @@ else:
 n_stims = control_med_med_dff.shape[1]
 n_hits = hits_med_med_dff.shape[2]
 
-stim_names = ('1 AP', '3 AP', '10 AP', '160 AP')
+stim_names = ('1 AP', '3 AP', '1 AP zoomed', '3 AP zoomed')
 colorscheme = px.colors.qualitative.Alphabet # 0th: control
+
+stim_iter = [0, 1, 0, 1] # [1AP, 3AP, 1AP, 3AP]
 
 fig = make_subplots(rows=2, cols=2, subplot_titles=stim_names, x_title='Time (s)',   y_title='dF/F') # go.Figure()
 
 # cycle through stim number
-for i in range(n_stims):
+for plot_i, i in enumerate(stim_iter):
 
     # plot hits
     for j,hit in enumerate(hits_label): # for j in range(n_hits):
         
         if hit == control_label:
             # plot control
-            add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], i+1, colorscheme[j], control_label)
+            add_shaded_trace(time, control_med_med_dff[:,i], control_med_med_dff_sterr[:,i], plot_i+1, colorscheme[j], control_label)
         else:
             hit_id = mapping.get(hit)
             hit_idx = hits.index(hit_id)
-            add_shaded_trace(time, hits_med_med_dff[:,i,hit_idx], hits_med_med_dff_sterr[:,i,hit_idx], i+1, colorscheme[j], hit)
+            add_shaded_trace(time, hits_med_med_dff[:,i,hit_idx], hits_med_med_dff_sterr[:,i,hit_idx], plot_i+1, colorscheme[j], hit)
 
 fig.update_traces(mode='lines')
 fig.update_layout(hovermode="closest", #, width=800, height=400,
@@ -143,14 +145,22 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
     font=dict(
         family="Arial",
         size=14,
-    )
+    ),
     height=300
 )
-fig.show()
+
+
+fig.update_yaxes(showline=True, linewidth=2, linecolor='black', ticks='inside', showgrid=False)
 
 # for 1AP, 3AP case, zoom in
-fig.update_xaxes(range=[0.8, 1.6], row=1, col=1)
-fig.update_xaxes(range=[0.8, 1.6], row=1, col=2)
+fig.update_xaxes(range=[0.8, 1.6], row=1, col=1, ticks='inside', showline=True, linewidth=1, linecolor='black', nticks=6, showgrid=False)
+fig.update_xaxes(range=[0.8, 1.6], row=1, col=2, ticks='inside', showline=True, linewidth=1, linecolor='black', nticks=6, showgrid=False)
+
+# for bottom row, zoom in more
+fig.update_xaxes(range=[0.95, 1.2], row=2, col=1, ticks='inside', showline=True, linewidth=1, linecolor='black', nticks=6, showgrid=False)
+fig.update_xaxes(range=[0.95, 1.2], row=2, col=2, ticks='inside', showline=True, linewidth=1, linecolor='black', nticks=6, showgrid=False)
+
+fig.show()
 
 # save subset version to pdf directory, save webpage version to site directory
 if plot_subset_for_paper:
