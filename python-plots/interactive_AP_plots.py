@@ -150,7 +150,7 @@ fig.update_layout(hovermode="closest", #, width=800, height=400,
 )
 
 
-fig.update_yaxes(showline=True, linewidth=2, linecolor='black', ticks='inside', showgrid=False)
+fig.update_yaxes(showline=True, linewidth=1, linecolor='black', ticks='inside', showgrid=False)
 
 # for 1AP, 3AP case, zoom in
 fig.update_xaxes(range=[0.8, 1.6], row=1, col=1, ticks='inside', showline=True, linewidth=1, linecolor='black', nticks=6, showgrid=False)
