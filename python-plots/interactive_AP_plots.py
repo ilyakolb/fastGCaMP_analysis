@@ -15,7 +15,7 @@ from plotly.subplots import make_subplots
 import plotly.express as px
 
 
-plot_subset_for_paper = 1 # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
+plot_subset_for_paper = True # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
 html_write_dir = r'./figs/interactive_AP_traces.html'
 pdf_dir = r"./figs/AP_plots.pdf"
 
@@ -116,7 +116,11 @@ n_stims = control_med_med_dff.shape[1]
 n_hits = hits_med_med_dff.shape[2]
 
 stim_names = ('1 AP', '3 AP', '1 AP zoomed', '3 AP zoomed')
-colorscheme = px.colors.qualitative.Alphabet # 0th: control
+
+if plot_subset_for_paper:
+    colorscheme = ['#336699', '#CC3333', '#666666', '#FFCC99', '#66CC33', '#CC99CC', '#3399CC']
+else:
+    colorscheme = px.colors.qualitative.Alphabet # 0th: control
 
 stim_iter = [0, 1, 0, 1] # [1AP, 3AP, 1AP, 3AP]
 
