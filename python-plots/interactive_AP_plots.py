@@ -16,6 +16,7 @@ import plotly.express as px
 
 
 plot_subset_for_paper = True # 0: plot entire dataset, save as html. 1: plot subset, save as pdf for paper
+data_path = r'data/plotly_AP_traces_WEBSITE.mat'
 html_write_dir = r'./figs/interactive_AP_traces.html'
 pdf_dir = r"./figs/AP_plots.pdf"
 
@@ -75,7 +76,7 @@ def add_shaded_trace(t, y_mean, y_sterr, stim_subplot_idx, color, construct_labe
 
 t_to_ignore_s = 0.5 # initial seconds to remove to get rid of bleaching artifacts
 pio.templates.default = "plotly_white"
-plot_mat = loadmat(r'data/plotly_AP_traces_WEBSITE.mat')
+plot_mat = loadmat(data_path)
 
 control_med_med_dff = plot_mat['plot_out'][0,0]['control_med_med_dff'] # [time x nStims]
 hits_med_med_dff = plot_mat['plot_out'][0,0]['hits_med_med_dff'] # [time x nStims x nHits]
